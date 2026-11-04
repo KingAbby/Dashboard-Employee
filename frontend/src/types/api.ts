@@ -40,6 +40,38 @@ export interface LoginResponse {
   user: Employee;
 }
 
+export type AttendanceStatus = 'ON_TIME' | 'LATE';
+export type AttendancePhotoType = 'in' | 'out';
+
+export interface Attendance {
+  id: string;
+  employeeId: string;
+  attendanceDate: string;
+  checkInAt: string;
+  checkInPhoto: string;
+  checkOutAt: string | null;
+  checkOutPhoto: string | null;
+  status: AttendanceStatus;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TodayAttendance {
+  date: string;
+  serverTime: string;
+  workStartTime: string;
+  lateToleranceMinutes: number;
+  attendance: Attendance | null;
+}
+
+export interface AttendanceQuery {
+  page: number;
+  limit: number;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 export interface ApiErrorBody {
   statusCode: number;
   error: string;

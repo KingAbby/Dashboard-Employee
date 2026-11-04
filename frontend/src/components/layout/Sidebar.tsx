@@ -39,7 +39,7 @@ export function Sidebar({ role, fullName, email, activePath, onNavigate, onLogou
   return (
     <aside className="flex h-full w-[232px] flex-col border-r border-line bg-surface">
       <div className="flex items-center gap-2.5 px-5 py-[18px]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary text-white shadow-[0_2px_6px_rgba(217,130,74,0.35)]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary text-primary-bright shadow-[0_2px_6px_rgba(10,43,76,0.25)]">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="m5.5 12.5 4.2 4.2L18.5 7"

@@ -57,7 +57,7 @@ const DEMO_ACCOUNTS = [
 
 const BrandMark = () => (
   <span className="flex items-center gap-2.5">
-    <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-bright text-white shadow-[0_2px_8px_rgba(217,130,74,0.35)]">
+    <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary text-primary-bright shadow-[0_2px_8px_rgba(10,43,76,0.28)]">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="m5.5 12.5 4.2 4.2L18.5 7"
@@ -123,8 +123,11 @@ export function LoginPage() {
             </p>
 
             <h1 className="mt-4 text-[40px] font-extrabold leading-[1.06] tracking-[-0.035em] text-ink">
-              Absensi WFH yang <span className="whitespace-nowrap text-primary">tercatat rapi</span>,{' '}
-              <span className="whitespace-nowrap">bukan tebak-tebakan</span>.
+              Absensi WFH yang{' '}
+              <span className="whitespace-nowrap rounded-[4px] bg-primary-soft px-2 py-1 text-primary">
+                tercatat rapi
+              </span>
+              , <span className="whitespace-nowrap">bukan tebak-tebakan</span>.
             </h1>
 
             <p className="mt-5 text-[13.5px] leading-relaxed text-muted">

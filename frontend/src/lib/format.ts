@@ -15,12 +15,27 @@ const longDateFormatter = new Intl.DateTimeFormat('id-ID', {
   year: 'numeric',
 });
 
+const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
 /** Tanggal ISO (YYYY-MM-DD atau ISO datetime) → "04 Nov 2026". */
 export const formatDate = (value: string | null | undefined): string => {
   if (!value) return '—';
   const date = value.length === 10 ? new Date(`${value}T00:00:00+07:00`) : new Date(value);
   if (Number.isNaN(date.getTime())) return '—';
   return dateFormatter.format(date);
+};
+
+/** ISO datetime → "08:12" dalam WIB. */
+export const formatTime = (value: string | null | undefined): string => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return timeFormatter.format(date);
 };
 
 export const formatLongDate = (value: Date = new Date()): string => longDateFormatter.format(value);

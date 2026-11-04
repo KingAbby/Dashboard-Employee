@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import type { SignOptions } from 'jsonwebtoken';
 import { AuthModule } from './auth/auth.module';
+import { AttendanceModule } from './attendance/attendance.module';
 import { ClientsModuleConfig } from './clients/clients.module';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
@@ -26,6 +27,7 @@ import { HealthModule } from './health/health.module';
     HealthModule,
     AuthModule,
     EmployeesModule,
+    AttendanceModule,
   ],
 })
 export class AppModule {}

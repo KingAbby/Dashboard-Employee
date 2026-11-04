@@ -95,7 +95,7 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'w-full rounded-card border border-line bg-surface shadow-[0_24px_60px_rgba(26,26,26,0.18)]',
+          'w-full rounded-card border border-line bg-surface shadow-[0_24px_60px_rgba(28,29,31,0.18)]',
           SIZES[size],
         )}
       >

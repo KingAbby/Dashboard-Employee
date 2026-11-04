@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AttendancesModule } from './attendances/attendances.module';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { HealthController } from './health.controller';
 
@@ -22,6 +23,7 @@ import { HealthController } from './health.controller';
         charset: 'utf8mb4',
       }),
     }),
+    AttendancesModule,
   ],
   controllers: [HealthController],
 })

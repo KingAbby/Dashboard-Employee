@@ -37,7 +37,7 @@ export function AppLayout() {
             onClick={() => setMobileOpen(false)}
             className="absolute inset-0 bg-ink/40 backdrop-blur-[1px]"
           />
-          <div className="relative h-full w-[232px] shadow-[8px_0_30px_rgba(26,26,26,0.15)]">
+          <div className="relative h-full w-[232px] shadow-[8px_0_30px_rgba(28,29,31,0.15)]">
             <Sidebar
               role={user.role}
               fullName={user.fullName}

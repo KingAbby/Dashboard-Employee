@@ -222,7 +222,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             <label className="flex items-start gap-2.5 rounded-card border border-line bg-bg/60 px-3 py-2.5">
               <input
                 type="checkbox"
-                className="mt-0.5 h-3.5 w-3.5 accent-[#d9824a]"
+                className="mt-0.5 h-3.5 w-3.5 accent-[#0a2b4c]"
                 {...register('isActive')}
               />
               <span>

@@ -145,7 +145,7 @@ export function KaryawanPage() {
             <Badge tone={row.isActive ? 'success' : 'neutral'} dot>
               {row.isActive ? 'Aktif' : 'Nonaktif'}
             </Badge>
-            <p className="mt-1 text-[11px] text-subtle">{ROLE_LABEL[row.role]}</p>
+            <p className="mt-1 text-[11px] text-muted">{ROLE_LABEL[row.role]}</p>
           </div>
         ),
       },
@@ -253,7 +253,7 @@ export function KaryawanPage() {
                     }}
                     className={cn(
                       'h-full rounded-[7px] px-3 text-[11px] font-semibold transition-colors',
-                      active ? 'bg-primary-tint text-ink' : 'text-muted hover:text-ink',
+                      active ? 'bg-primary-tint font-bold text-primary' : 'text-muted hover:text-ink',
                     )}
                   >
                     {filter.label}

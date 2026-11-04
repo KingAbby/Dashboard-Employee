@@ -28,13 +28,13 @@ const TONE_STYLES: Record<BadgeTone, { card: string; label: string; icon: string
     value: 'text-ink',
   },
   primary: {
-    card: 'bg-primary-tint border-primary/20',
-    label: 'text-primary-strong',
+    card: 'bg-primary-tint border-primary/25',
+    label: 'text-primary',
     icon: 'text-primary',
     value: 'text-ink',
   },
   neutral: {
-    card: 'bg-surface-muted/60 border-line',
+    card: 'bg-surface border-line',
     label: 'text-muted',
     icon: 'text-subtle',
     value: 'text-ink',
