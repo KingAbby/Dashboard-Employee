@@ -1,9 +1,4 @@
-import {
-  ERROR_MESSAGES,
-  MESSAGE_PATTERNS,
-  SERVICE_NAMES,
-  type PingResponse,
-} from '@app/common';
+import { ERROR_MESSAGES, MESSAGE_PATTERNS, SERVICE_NAMES, type PingResponse } from '@app/common';
 import { Controller, Get, Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, of, timeout, catchError, type Observable } from 'rxjs';

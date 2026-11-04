@@ -1,12 +1,12 @@
 {
   "name": "dashboard-karyawan",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Aplikasi absensi WFH & monitoring karyawan — React + Vite, NestJS (gateway + 2 microservice TCP), MySQL.",
+  "license": "ISC",
   "scripts": {
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d",
-    "db:wait": "docker compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uroot -prootpassword --silent || echo 'mysql belum siap'",
     "migrate": "npm --prefix backend run migrate",
     "seed": "npm --prefix backend run seed",
     "dev:gateway": "npm --prefix backend run start:dev:gateway",
@@ -23,7 +23,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "concurrently": "^9.2.5"
   }

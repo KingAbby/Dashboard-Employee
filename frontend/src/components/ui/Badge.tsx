@@ -24,12 +24,11 @@ const DOTS: Record<BadgeTone, string> = {
 export interface BadgeProps {
   tone?: BadgeTone;
   dot?: boolean;
-  icon?: ReactNode;
   children: ReactNode;
   className?: string;
 }
 
-export function Badge({ tone = 'neutral', dot = false, icon, children, className }: BadgeProps) {
+export function Badge({ tone = 'neutral', dot = false, children, className }: BadgeProps) {
   return (
     <span
       className={cn(
@@ -39,7 +38,6 @@ export function Badge({ tone = 'neutral', dot = false, icon, children, className
       )}
     >
       {dot ? <span className={cn('h-1.5 w-1.5 rounded-full', DOTS[tone])} aria-hidden="true" /> : null}
-      {icon}
       {children}
     </span>
   );

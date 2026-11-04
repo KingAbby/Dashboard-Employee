@@ -11,7 +11,6 @@ import {
 } from '../../lib/session';
 import type { AuthUser, LoginResponse } from '../../types/api';
 import { AuthContext, type AuthContextValue } from './auth-context';
-import { homePathFor } from './paths';
 
 const toAuthUser = (user: LoginResponse['user']): AuthUser => ({
   id: user.id,
@@ -74,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, login, logout, homePath: user ? homePathFor(user.role) : '/login' }),
+    () => ({ user, login, logout }),
     [user, login, logout],
   );
 

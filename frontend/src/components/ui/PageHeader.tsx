@@ -5,10 +5,9 @@ export interface PageHeaderProps {
   title: string;
   description?: string;
   action?: ReactNode;
-  meta?: ReactNode;
 }
 
-export function PageHeader({ eyebrow, title, description, action, meta }: PageHeaderProps) {
+export function PageHeader({ eyebrow, title, description, action }: PageHeaderProps) {
   return (
     <header className="flex flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
@@ -19,10 +18,7 @@ export function PageHeader({ eyebrow, title, description, action, meta }: PageHe
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
-        {meta}
-        {action}
-      </div>
+      {action ? <div className="flex shrink-0 items-center gap-3">{action}</div> : null}
     </header>
   );
 }

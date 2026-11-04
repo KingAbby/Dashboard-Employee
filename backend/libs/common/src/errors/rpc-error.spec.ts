@@ -6,7 +6,11 @@ describe('toRpcErrorPayload', () => {
   it('membaca payload yang dibungkus transport TCP', () => {
     // Bentuk yang benar-benar diterima gateway dari service lewat TCP.
     const fromTransport = {
-      error: { statusCode: 401, error: 'Unauthorized', message: ERROR_MESSAGES.INVALID_CREDENTIALS },
+      error: {
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: ERROR_MESSAGES.INVALID_CREDENTIALS,
+      },
       message: ERROR_MESSAGES.INVALID_CREDENTIALS,
     };
 

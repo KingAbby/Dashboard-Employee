@@ -1,9 +1,4 @@
-import {
-  AppRpcException,
-  ERROR_MESSAGES,
-  type LoginDto,
-  type LoginResult,
-} from '@app/common';
+import { AppRpcException, ERROR_MESSAGES, type LoginDto, type LoginResult } from '@app/common';
 import { Injectable } from '@nestjs/common';
 import { verifyPassword } from '../common/password.util';
 import { toEmployeeResponse } from '../employees/employee.mapper';

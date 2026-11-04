@@ -42,8 +42,3 @@ export class DeactivateEmployeePayload {
   @IsUUID('4', { message: 'ID pelaku tidak valid.' })
   actorId?: string;
 }
-
-export class LoginPayload {
-  email!: string;
-  password!: string;
-}

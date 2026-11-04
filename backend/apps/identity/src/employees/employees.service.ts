@@ -12,7 +12,7 @@ import {
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'node:crypto';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { hashPassword } from '../common/password.util';
 import { toEmployeeResponse } from './employee.mapper';
 import { Employee } from './entities/employee.entity';
@@ -95,9 +95,8 @@ export class EmployeesService {
 
   async findManyByIds(ids: string[]): Promise<EmployeeResponse[]> {
     if (ids.length === 0) return [];
-    const rows = await this.employees.find({ where: { id: Not('') } });
-    const wanted = new Set(ids);
-    return rows.filter((row) => wanted.has(row.id)).map(toEmployeeResponse);
+    const rows = await this.employees.find({ where: { id: In(ids) } });
+    return rows.map(toEmployeeResponse);
   }
 
   /** Untuk autentikasi: butuh password_hash yang secara default tidak di-select. */

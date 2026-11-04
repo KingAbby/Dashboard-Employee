@@ -108,10 +108,12 @@ npm --prefix frontend install   # repo ini memakai yarn.lock; `yarn install` jug
 # 2. MySQL
 npm run db:up                   # docker compose up -d (MySQL 8 di :3306)
 
-# 3. Environment
-cp .env.example backend/.env
-#    sesuaikan DB_PASSWORD dengan yang dipakai container (default: rootpassword),
-#    dan ganti JWT_SECRET dengan string acak.
+# 3. Environment — satu file .env di root, dipakai compose + backend + script
+cp .env.example .env
+#    Nilai default sudah jalan untuk lokal (DB_PASSWORD=rootpassword, sama dengan
+#    default docker-compose). Untuk apa pun selain lokal, ganti DB_PASSWORD dan
+#    JWT_SECRET. Kalau ganti DB_PASSWORD untuk volume yang sudah ada,
+#    jalankan `npm run db:reset`.
 
 # 4. Skema + data contoh
 npm run migrate                 # membuat database bila belum ada, lalu menjalankan migration
@@ -202,8 +204,8 @@ Endpoint absensi (`/attendances/*`) menyusul pada tahap 3–4, kontraknya ada di
 │   ├── features/          auth (provider, hook, guard), employees (query + form modal)
 │   ├── pages/             LoginPage, admin/KaryawanPage, penanda tahap 3-4
 │   └── lib/               api (axios), session, format (Intl Asia/Jakarta), query-client
-├── docker/mysql/init/     pembuatan dua database saat volume masih kosong
-├── docker-compose.yml
+├── docker-compose.yml     MySQL 8 (database dibuat oleh `npm run migrate`)
+├── .env                   konfigurasi lokal, git-ignored, disalin dari .env.example
 └── .env.example
 ```
 
@@ -227,6 +229,8 @@ Hal-hal yang diputuskan sendiri selama pengerjaan (lihat juga `agent.md` bagian 
 12. **Foto seed adalah placeholder.** Script seed membuat PNG gradient 480×360 sebagai isi `uploads/attendance/YYYY/MM/`, supaya modal pratinjau admin (tahap 4) punya file yang benar-benar bisa dibuka.
 13. **Seeder idempoten.** Data dicek per email / per `(employee_id, attendance_date)` sebelum diinsert, jadi `npm run seed` boleh dijalankan berulang.
 14. **Timestamp dari klien tidak pernah dipakai.** Belum ada endpoint absensi, tetapi koneksi MySQL memakai `timezone: 'Z'` dan kolom `DATETIME(6)` disiapkan untuk menyimpan UTC.
+15. **Satu `.env` di root.** Docker compose, ketiga service, dan script `migrate`/`seed` membaca file yang sama (`envFilePath: ['../.env', '.env']`), jadi `DB_PASSWORD` hanya ada di satu tempat. Compose memakai `${DB_PASSWORD:-rootpassword}`: kalau `.env` ada, nilainya dipakai; kalau tidak, jatuh ke default `rootpassword` yang sama dengan `.env.example`.
+16. **Mengganti password MySQL butuh volume baru.** `MYSQL_ROOT_PASSWORD` hanya dipakai saat volume masih kosong. Setelah itu password tersimpan di dalam volume, jadi ganti `DB_PASSWORD` disertai `npm run db:reset` — bukan hanya restart container.
 
 ---
 

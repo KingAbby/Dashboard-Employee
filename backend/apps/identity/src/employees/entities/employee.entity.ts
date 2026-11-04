@@ -1,12 +1,5 @@
 import { Role } from '@app/common';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('employees')
 export class Employee {

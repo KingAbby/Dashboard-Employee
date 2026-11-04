@@ -22,8 +22,7 @@ const STATUS_TEXT: Record<number, string> = {
   [HttpStatus.INTERNAL_SERVER_ERROR]: 'Internal Server Error',
 };
 
-export const httpStatusText = (statusCode: number): string =>
-  STATUS_TEXT[statusCode] ?? 'Error';
+export const httpStatusText = (statusCode: number): string => STATUS_TEXT[statusCode] ?? 'Error';
 
 export class AppRpcException extends RpcException {
   constructor(statusCode: number, message: string | string[], error?: string) {

@@ -5,7 +5,6 @@ export interface AuthContextValue {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<AuthUser>;
   logout: () => void;
-  homePath: string;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
