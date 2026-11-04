@@ -1,0 +1,30 @@
+{
+  "name": "dashboard-karyawan",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:wait": "docker compose exec -T mysql mysqladmin ping -h 127.0.0.1 -uroot -prootpassword --silent || echo 'mysql belum siap'",
+    "migrate": "npm --prefix backend run migrate",
+    "seed": "npm --prefix backend run seed",
+    "dev:gateway": "npm --prefix backend run start:dev:gateway",
+    "dev:identity": "npm --prefix backend run start:dev:identity",
+    "dev:attendance": "npm --prefix backend run start:dev:attendance",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently -k -n \"GATEWAY,IDENTITY,ATTENDANCE,FRONTEND\" -c \"blue,magenta,yellow,cyan\" \"npm:dev:gateway\" \"npm:dev:identity\" \"npm:dev:attendance\" \"npm:dev:frontend\"",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "format": "npm --prefix backend run format && npx prettier --write \"frontend/src/**/*.{ts,tsx,css}\"",
+    "test": "npm --prefix backend run test",
+    "test:e2e": "npm --prefix backend run test:e2e",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}

@@ -1,0 +1,129 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Brand — satu warna aksen, dipakai hemat (lihat design.md).
+     Nilai teks dipekatkan dari #D9824A agar kontrasnya lolos WCAG AA
+     (oranye asli hanya 2.9:1 di atas putih). */
+  --color-primary: #b25f26;
+  --color-primary-strong: #9c5827;
+  --color-primary-bright: #d9824a;
+  --color-primary-tint: #fdf1e8;
+
+  /* Netral */
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef2f6;
+  --color-line: #e6e8ec;
+  --color-line-strong: #d7dbe2;
+  --color-ink: #1a1a1a;
+  --color-muted: #5f6672;
+  --color-subtle: #6f7480;
+
+  /* Semantik — hanya untuk status dan angka. */
+  --color-success: #0f7a4f;
+  --color-success-tint: #ecfaf3;
+  --color-warning: #8a5a00;
+  --color-warning-tint: #fff8e5;
+  --color-info: #1f66b0;
+  --color-info-tint: #eaf3fc;
+  --color-danger: #c62f34;
+  --color-danger-tint: #fdecee;
+
+  --radius-btn: 8px;
+  --radius-card: 12px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-tint);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary-strong);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Label kecil kapital dengan letter-spacing lebar. */
+  .label-caps {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .card-surface {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .input-base {
+    width: 100%;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--color-ink);
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .input-base::placeholder {
+    color: var(--color-subtle);
+  }
+
+  .input-base:hover {
+    border-color: var(--color-line-strong);
+  }
+
+  .input-base:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+
+  .input-error {
+    border-color: var(--color-danger);
+  }
+
+  .input-error:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px var(--color-danger-tint);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 160ms ease-out;
+}
