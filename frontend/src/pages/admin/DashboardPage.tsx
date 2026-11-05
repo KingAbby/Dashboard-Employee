@@ -16,7 +16,8 @@ import {
 import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatusBadge';
 import { useAdminAttendances, useAttendanceSummary } from '../../features/attendance/api';
 import { toErrorMessage } from '../../lib/api';
-import { formatDate, formatTime, todayISODate } from '../../lib/format';
+import { useMinimumLoading } from '../../lib/use-min-loading';
+import { formatClock, formatDate, formatTime, todayISODate } from '../../lib/format';
 import type { AdminAttendance } from '../../types/api';
 
 const RECENT_LIMIT = 5;
@@ -24,12 +25,21 @@ const RECENT_LIMIT = 5;
 export function DashboardPage() {
   const today = todayISODate();
   const summary = useAttendanceSummary();
-  const recent = useAdminAttendances({
-    page: 1,
-    limit: RECENT_LIMIT,
-    dateFrom: today,
-    dateTo: today,
-  });
+  const recent = useAdminAttendances(
+    {
+      page: 1,
+      limit: RECENT_LIMIT,
+      dateFrom: today,
+      dateTo: today,
+    },
+    { refetchInterval: 30_000 },
+  );
+
+  const showBusy = useMinimumLoading(summary.isFetching && !summary.isLoading);
+  const updatedAt = summary.dataUpdatedAt ? formatClock(summary.dataUpdatedAt) : null;
+  const refreshAll = () => {
+    void Promise.all([summary.refetch(), recent.refetch()]);
+  };
 
   const data = summary.data;
   const attendanceRate =
@@ -76,7 +86,33 @@ export function DashboardPage() {
         eyebrow="Ringkasan"
         title="Ringkasan kehadiran"
         description="Angka hari ini dihitung langsung dari absensi yang sudah disubmit, bukan rekap manual."
-        action={<Badge tone="primary">{formatDate(today)}</Badge>}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] text-subtle">
+              {showBusy ? (
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                  <RefreshIcon size={12} className="animate-spin" />
+                  Memperbarui…
+                </span>
+              ) : updatedAt ? (
+                `Diperbarui ${updatedAt}`
+              ) : (
+                'Belum diperbarui'
+              )}
+            </span>
+            <Badge tone="primary">{formatDate(today)}</Badge>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={refreshAll}
+              disabled={showBusy}
+              aria-label="Muat ulang ringkasan"
+              icon={<RefreshIcon size={13} />}
+            >
+              Muat ulang
+            </Button>
+          </div>
+        }
       />
 
       {summary.isError ? (

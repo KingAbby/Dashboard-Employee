@@ -212,7 +212,7 @@ Endpoint admin hanya untuk membaca. Tidak ada `PATCH`/`DELETE` absensi, dan endp
 - `/admin/absensi` menampilkan tabel absensi semua karyawan: nama + kode + divisi, tanggal, jam masuk/pulang, status, dan tombol **Lihat bukti**.
 - Filter: rentang tanggal, karyawan (dropdown, 100 karyawan pertama), status (tepat waktu/terlambat), plus tombol pintas **Hari ini**.
 - Modal bukti menampilkan foto masuk dan pulang berdampingan, keduanya diambil lewat endpoint ber-Bearer (bukan URL publik). Kalau check-out belum ada, kolom foto pulang menjelaskan itu.
-- `/admin/dashboard` menampilkan empat kartu ringkasan hari ini (hadir, terlambat, sudah pulang, belum absen) dan lima absensi terbaru.
+- `/admin/dashboard` menampilkan empat kartu ringkasan hari ini (hadir, terlambat, sudah pulang, belum absen) dan lima absensi terbaru. Ringkasan dan daftar terbaru diperbarui otomatis tiap 30 detik, saat tab kembali fokus, dan lewat tombol "Muat ulang"; label "Diperbarui HH:mm:ss" menunjukkan waktu data terakhir diambil.
 - Semua daftar punya state loading (skeleton), kosong, dan error dengan tombol coba lagi.
 
 ---
@@ -286,6 +286,7 @@ Hal-hal yang diputuskan sendiri selama pengerjaan (lihat juga `agent.md` bagian 
 33. **Pembuatan kode aman dari balapan.** `employee_code` punya unique index; kalau dua admin menyimpan bersamaan, yang kalah mendapat `ER_DUP_ENTRY`, lalu mengulang otomatis dengan nomor berikutnya (maksimal 5 percobaan). Kode manual yang bentrok langsung `409`, bukan `500`. Ini sudah diuji dengan 5 request paralel: semua berhasil dengan kode unik berurutan.
 34. **Indikator loading ditahan minimal 700 ms.** `useMinimumLoading` menahan overlay "Memperbarui data…" supaya tidak berkedip saat request lokal selesai dalam hitungan milidetik. Tidak ada lagi garis progress tipis; indikator berupa chip + spinner di header, input pencarian, toolbar filter, dan overlay tabel.
 35. **Query tidak ditunda saat offline.** `networkMode: 'always'` di React Query membuat request tetap dicoba dan gagal dengan pesan error, bukan menggantung di state "kosong" ketika browser melaporkan offline.
+36. **Data admin dianggap selalu perlu segar.** `staleTime` global 0, `refetchOnWindowFocus` dan `refetchOnReconnect` aktif, sehingga reset filter, buka ulang halaman, atau kembali ke tab langsung memicu refetch (baris lama tetap tampil + indikator). Ringkasan dashboard, absensi hari ini, dan lima absensi terbaru juga polling tiap 30 detik; daftar monitoring tidak dipolling agar tabel tidak berubah saat sedang dibaca, tetapi tetap refetch saat filter/halaman berubah, tab fokus, atau tombol muat ulang ditekan.
 
 ---
 

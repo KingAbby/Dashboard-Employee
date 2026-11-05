@@ -22,6 +22,14 @@ const timeFormatter = new Intl.DateTimeFormat('en-GB', {
   hourCycle: 'h23',
 });
 
+const clockFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+
 export const formatDate = (value: string | null | undefined): string => {
   if (!value) return '—';
   const date = value.length === 10 ? new Date(`${value}T00:00:00+07:00`) : new Date(value);
@@ -35,6 +43,9 @@ export const formatTime = (value: string | null | undefined): string => {
   if (Number.isNaN(date.getTime())) return '—';
   return timeFormatter.format(date);
 };
+
+export const formatClock = (value: string | number | Date): string =>
+  clockFormatter.format(new Date(value));
 
 export const formatLongDate = (value: Date = new Date()): string => longDateFormatter.format(value);
 

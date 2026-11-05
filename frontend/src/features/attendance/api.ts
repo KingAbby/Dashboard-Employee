@@ -37,7 +37,7 @@ export const useTodayAttendance = () =>
       const { data } = await api.get<TodayAttendance>('/attendances/today');
       return data;
     },
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
 
 export const useMyAttendances = (query: AttendanceQuery) =>
@@ -50,7 +50,10 @@ export const useMyAttendances = (query: AttendanceQuery) =>
     placeholderData: (previous) => previous,
   });
 
-export const useAdminAttendances = (query: AttendanceAdminQuery) =>
+export const useAdminAttendances = (
+  query: AttendanceAdminQuery,
+  options: { refetchInterval?: number } = {},
+) =>
   useQuery({
     queryKey: attendanceKeys.admin(query),
     queryFn: async () => {
@@ -60,6 +63,7 @@ export const useAdminAttendances = (query: AttendanceAdminQuery) =>
       return data;
     },
     placeholderData: (previous) => previous,
+    refetchInterval: options.refetchInterval,
   });
 
 export const useAttendanceSummary = () =>
@@ -69,7 +73,7 @@ export const useAttendanceSummary = () =>
       const { data } = await api.get<AttendanceSummary>('/attendances/summary');
       return data;
     },
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
 
 const useAttendanceMutation = (path: 'check-in' | 'check-out') => {
