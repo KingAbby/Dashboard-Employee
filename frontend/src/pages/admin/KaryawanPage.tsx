@@ -162,7 +162,7 @@ export function KaryawanPage() {
               onClick={() => openEdit(row)}
               aria-label={`Ubah data ${row.fullName}`}
               title="Ubah data"
-              className="rounded-md border border-transparent p-1.5 text-muted transition-colors hover:border-line hover:bg-bg hover:text-ink"
+              className="rounded-md cursor-pointer border border-transparent p-1.5 text-muted transition-colors hover:border-line hover:bg-bg hover:text-ink"
             >
               <PencilIcon size={14} />
             </button>
@@ -172,7 +172,7 @@ export function KaryawanPage() {
               disabled={!row.isActive}
               aria-label={`Nonaktifkan ${row.fullName}`}
               title={row.isActive ? 'Nonaktifkan' : 'Sudah nonaktif'}
-              className="rounded-md border border-transparent p-1.5 text-muted transition-colors hover:border-danger/30 hover:bg-danger-tint hover:text-danger disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-subtle"
+              className="rounded-md cursor-pointer border border-transparent p-1.5 text-muted transition-colors hover:border-danger/30 hover:bg-danger-tint hover:text-danger disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-subtle"
             >
               <PowerIcon size={14} />
             </button>

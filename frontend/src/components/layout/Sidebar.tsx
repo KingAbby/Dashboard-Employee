@@ -95,7 +95,7 @@ export function Sidebar({ role, fullName, email, activePath, onNavigate, onLogou
             onClick={onLogout}
             aria-label="Keluar dari akun"
             title="Keluar"
-            className="rounded-md p-1.5 text-subtle transition-colors hover:bg-surface-muted hover:text-danger"
+            className="rounded-md p-1.5 cursor-pointer text-subtle transition-colors hover:bg-surface-muted hover:text-danger"
           >
             <LogOutIcon size={15} />
           </button>

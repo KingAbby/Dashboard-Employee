@@ -214,6 +214,7 @@ export function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
                   aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
                   className="rounded-md p-1.5 text-subtle transition-colors hover:bg-surface-muted hover:text-ink"
                 >
                   {showPassword ? <EyeOffIcon size={15} /> : <EyeIcon size={15} />}
@@ -227,7 +228,7 @@ export function LoginPage() {
               fullWidth
               loading={isSubmitting}
               iconRight={<ArrowRightIcon size={14} />}
-              className="mt-2"
+              className="mt-2 cursor-pointer"
             >
               {isSubmitting ? 'Memeriksa…' : 'Masuk ke portal'}
             </Button>

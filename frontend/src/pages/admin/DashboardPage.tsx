@@ -100,6 +100,7 @@ export function DashboardPage() {
               )}
             </span>
             <Button
+              className="cursor-pointer"
               variant="secondary"
               size="sm"
               onClick={refreshAll}
@@ -174,9 +175,8 @@ export function DashboardPage() {
           value={data?.notCheckedIn ?? '—'}
           hint={
             data
-              ? `${data.totalActiveEmployees} karyawan aktif${
-                  attendanceRate !== null ? ` · kehadiran ${attendanceRate}%` : ''
-                }`
+              ? `${data.totalActiveEmployees} karyawan aktif${attendanceRate !== null ? ` · kehadiran ${attendanceRate}%` : ''
+              }`
               : 'Dari total karyawan aktif'
           }
           tone="danger"
