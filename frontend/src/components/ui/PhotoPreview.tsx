@@ -20,7 +20,6 @@ export function PhotoPreview({ open, onClose, attendanceId, type }: PhotoPreview
       open={open}
       onClose={onClose}
       title={LABEL[type]}
-      description="Diambil dari endpoint terautentikasi, hanya untuk pemilik absensi atau admin HRD."
       size="md"
     >
       {open && attendanceId ? (

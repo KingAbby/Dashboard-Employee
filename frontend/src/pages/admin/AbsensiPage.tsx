@@ -12,6 +12,7 @@ import { AttendancePhotoModal } from '../../features/attendance/AttendancePhotoM
 import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatusBadge';
 import { useAdminAttendances } from '../../features/attendance/api';
 import { toErrorMessage } from '../../lib/api';
+import { useMinimumLoading } from '../../lib/use-min-loading';
 import { formatDate, formatTime, todayISODate } from '../../lib/format';
 import type { AdminAttendance, AttendanceStatus } from '../../types/api';
 
@@ -48,6 +49,7 @@ export function AbsensiPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const showBusy = useMinimumLoading(listQuery.isFetching && !listQuery.isLoading);
   const isFiltering = Boolean(dateFrom || dateTo || search || status !== 'all');
 
   const resetFilters = () => {
@@ -122,10 +124,21 @@ export function AbsensiPage() {
       <PageHeader
         eyebrow="Monitoring absensi"
         title="Absensi seluruh karyawan"
-        description="Hanya baca. Admin HRD memantau absensi yang sudah disubmit beserta foto buktinya, tanpa kemampuan mengubah atau menghapus."
+        description="Admin HRD memantau absensi yang sudah disubmit beserta foto buktinya, tanpa kemampuan mengubah atau menghapus."
         action={
           <Badge tone="primary">
-            {listQuery.data ? `${listQuery.data.meta.total} catatan` : 'Memuat…'}
+            <span className="flex items-center gap-1.5">
+              {showBusy ? (
+                <>
+                  <RefreshIcon size={11} className="animate-spin" />
+                  Memperbarui…
+                </>
+              ) : listQuery.data ? (
+                `${listQuery.data.meta.total} catatan`
+              ) : (
+                'Memuat…'
+              )}
+            </span>
           </Badge>
         }
       />
@@ -172,6 +185,11 @@ export function AbsensiPage() {
               className="w-full sm:min-w-[220px] sm:flex-1"
               placeholder="Nama, kode, atau email"
               icon={<SearchIcon size={14} />}
+              trailing={
+                showBusy ? (
+                  <RefreshIcon size={14} className="animate-spin text-primary" />
+                ) : undefined
+              }
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
@@ -202,12 +220,17 @@ export function AbsensiPage() {
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[11px] text-subtle">
-              {listQuery.isFetching
-                ? 'Memperbarui data…'
-                : isFiltering
-                  ? 'Filter aktif. Data di bawah hanya yang cocok dengan filter.'
-                  : 'Seluruh absensi, terbaru di atas.'}
+            <p className="flex items-center gap-1.5 text-[11px] text-subtle">
+              {showBusy ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-tint px-2.5 py-1 font-semibold text-primary">
+                  <RefreshIcon size={12} className="animate-spin" />
+                  Memperbarui data…
+                </span>
+              ) : isFiltering ? (
+                'Filter aktif. Data di bawah hanya yang cocok dengan filter.'
+              ) : (
+                'Seluruh absensi, terbaru di atas.'
+              )}
             </p>
             <button
               type="button"
@@ -218,7 +241,7 @@ export function AbsensiPage() {
             >
               <RefreshIcon
                 size={14}
-                className={listQuery.isFetching ? 'animate-spin text-primary' : undefined}
+                className={showBusy ? 'animate-spin text-primary' : undefined}
               />
             </button>
           </div>
@@ -230,7 +253,7 @@ export function AbsensiPage() {
           rows={listQuery.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={listQuery.isLoading}
-          fetching={listQuery.isFetching}
+          fetching={showBusy}
           error={listQuery.isError ? toErrorMessage(listQuery.error) : null}
           onRetry={() => void listQuery.refetch()}
           meta={listQuery.data?.meta}

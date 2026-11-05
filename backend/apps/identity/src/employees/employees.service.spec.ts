@@ -101,6 +101,59 @@ describe('EmployeesService', () => {
       expect(created.role).toBe(Role.EMPLOYEE);
       expect(repository.save).toHaveBeenCalledTimes(1);
     });
+
+    it('mengulang dengan kode berikutnya saat bentrok (dua admin bersamaan)', async () => {
+      const repository = buildRepository();
+      repository.save.mockRejectedValueOnce({
+        driverError: {
+          code: 'ER_DUP_ENTRY',
+          message: "Duplicate entry 'EMP-0001' for key 'employees.uq_employees_employee_code'",
+        },
+      });
+      const service = new EmployeesService(repository);
+
+      const created = await service.create({
+        fullName: 'Karyawan Bersamaan',
+        email: 'race@example.com',
+        password: 'Rahasia123!',
+      });
+
+      expect(created.employeeCode).toBe('EMP-0002');
+      expect(repository.save).toHaveBeenCalledTimes(2);
+    });
+
+    it('menolak kode manual yang bentrok karena balapan', async () => {
+      const repository = buildRepository();
+      repository.save.mockRejectedValueOnce({
+        driverError: {
+          code: 'ER_DUP_ENTRY',
+          message: "Duplicate entry 'EMP-0100' for key 'employees.uq_employees_employee_code'",
+        },
+      });
+      const service = new EmployeesService(repository);
+
+      await expect(
+        service.create({
+          employeeCode: 'EMP-0100',
+          fullName: 'Karyawan Manual',
+          email: 'manual@example.com',
+          password: 'Rahasia123!',
+        }),
+      ).rejects.toMatchObject({
+        error: { statusCode: 409, message: ERROR_MESSAGES.EMPLOYEE_CODE_TAKEN },
+      });
+    });
+  });
+
+  describe('nextCode', () => {
+    it('memberi pratinjau kode berikutnya tanpa menyimpan', async () => {
+      const repository = buildRepository();
+      repository.count.mockResolvedValueOnce(1).mockResolvedValueOnce(0);
+      const service = new EmployeesService(repository);
+
+      await expect(service.nextCode()).resolves.toEqual({ employeeCode: 'EMP-0002' });
+      expect(repository.save).not.toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {

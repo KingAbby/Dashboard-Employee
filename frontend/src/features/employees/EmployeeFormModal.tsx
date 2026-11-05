@@ -11,7 +11,7 @@ import { DEPARTMENTS } from '../../config/departments';
 import { useToast } from '../../components/ui/useToast';
 import { toErrorMessage } from '../../lib/api';
 import type { Employee, EmployeePayload } from '../../types/api';
-import { useCreateEmployee, useUpdateEmployee } from './api';
+import { useCreateEmployee, useNextEmployeeCode, useUpdateEmployee } from './api';
 
 const optionalText = (max: number, message: string) => z.string().max(max, message).optional();
 
@@ -94,6 +94,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
   const { toast } = useToast();
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee();
+  const nextCode = useNextEmployeeCode(!isEdit);
   const [formError, setFormError] = useState<string | null>(null);
   const departmentOptions =
     employee?.department &&
@@ -117,8 +118,8 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
         await updateEmployee.mutateAsync({ id: employee.id, payload: toPayload(values, true) });
         toast('Data karyawan berhasil diperbarui.');
       } else {
-        await createEmployee.mutateAsync(toPayload(values, false));
-        toast('Karyawan baru berhasil ditambahkan.');
+        const created = await createEmployee.mutateAsync(toPayload(values, false));
+        toast(`Karyawan baru dibuat dengan kode ${created.employeeCode}.`);
       }
       onClose();
     } catch (error) {
@@ -162,9 +163,13 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
 
           <Input
             label="Kode karyawan"
-            value={employee?.employeeCode ?? ''}
-            placeholder="Otomatis saat disimpan"
-            hint="Note: Generate otomatis oleh sistem."
+            value={employee?.employeeCode ?? nextCode.data?.employeeCode ?? ''}
+            placeholder={nextCode.isLoading ? 'Membuat kode…' : 'Otomatis saat disimpan'}
+            hint={
+              employee
+                ? 'Note: Kode tidak bisa diubah.'
+                : 'Note: Generate otomatis oleh sistem.'
+            }
             readOnly
             disabled
           />
@@ -174,7 +179,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             type="password"
             required={!isEdit}
             placeholder={isEdit ? 'Kosongkan bila tidak diubah' : 'Buat password awal'}
-            hint={isEdit ? 'Isi hanya bila ingin mengganti password.' : 'Minimal 8 karakter.'}
+            hint={isEdit ? 'Note: Isi hanya bila ingin mengganti password.' : 'Note: Minimal 8 karakter.'}
             className="sm:col-span-2"
             error={errors.password?.message}
             {...register('password')}
@@ -186,7 +191,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
           </Select>
 
           <Select label="Divisi" error={errors.department?.message} {...register('department')}>
-            <option value="">Tanpa divisi</option>
+            <option value="">Pilih divisi</option>
             {departmentOptions.map((option) => (
               <option key={option} value={option}>
                 {option}

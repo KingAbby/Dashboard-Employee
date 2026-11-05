@@ -52,10 +52,12 @@ export function DataTable<T>({
   return (
     <div className="card-surface relative overflow-hidden" aria-busy={loading || fetching}>
       {fetching && !loading && !error ? (
-        <div
-          className="absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-primary/80"
-          aria-hidden="true"
-        />
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center bg-surface/50 pt-16 backdrop-blur-[1px]">
+          <span className="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] font-semibold text-primary shadow-sm">
+            <RefreshIcon size={13} className="animate-spin" />
+            Memperbarui data…
+          </span>
+        </div>
       ) : null}
       {error ? (
         <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">

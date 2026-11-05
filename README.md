@@ -168,13 +168,14 @@ Prefix `/api`. Selain login, semua endpoint butuh header `Authorization: Bearer 
 
 ### Karyawan
 
-| Method | Path             | Role      | Keterangan                                                                |
-| ------ | ---------------- | --------- | ------------------------------------------------------------------------- |
-| GET    | `/employees`     | ADMIN_HRD | Pagination, `search` (nama/kode/email), filter `isActive`, `role`         |
-| GET    | `/employees/:id` | ADMIN_HRD | Detail                                                                    |
-| POST   | `/employees`     | ADMIN_HRD | Tambah karyawan, admin mengisi password awal                              |
-| PATCH  | `/employees/:id` | ADMIN_HRD | Ubah data, password opsional, `isActive` untuk mengaktifkan kembali       |
-| DELETE | `/employees/:id` | ADMIN_HRD | Nonaktifkan (soft delete). Admin tidak bisa menonaktifkan akunnya sendiri |
+| Method | Path                   | Role      | Keterangan                                                                  |
+| ------ | ---------------------- | --------- | --------------------------------------------------------------------------- |
+| GET    | `/employees`           | ADMIN_HRD | Pagination, `search` (nama/kode/email), filter `isActive`, `role`           |
+| GET    | `/employees/next-code` | ADMIN_HRD | Pratinjau kode berikutnya (`{ employeeCode: "EMP-0006" }`), tanpa menyimpan |
+| GET    | `/employees/:id`       | ADMIN_HRD | Detail                                                                      |
+| POST   | `/employees`           | ADMIN_HRD | Tambah karyawan, admin mengisi password awal                                |
+| PATCH  | `/employees/:id`       | ADMIN_HRD | Ubah data, password opsional, `isActive` untuk mengaktifkan kembali         |
+| DELETE | `/employees/:id`       | ADMIN_HRD | Nonaktifkan (soft delete). Admin tidak bisa menonaktifkan akunnya sendiri   |
 
 Pagination: `page` (mulai 1), `limit` (default 10, maksimal 100). Bentuk respons list: `{ data, meta: { page, limit, total, totalPages } }`.
 
@@ -276,20 +277,22 @@ Hal-hal yang diputuskan sendiri selama pengerjaan (lihat juga `agent.md` bagian 
 24. **Tanggal divalidasi sebagai tanggal kalender, bukan hanya pola.** Filter `dateFrom`/`dateTo` dan `joinDate` memakai `@Matches` (format) plus `@IsDateString({ strict: true })`, sehingga `2026-13-99` ditolak `400` sebelum menyentuh MySQL (sebelumnya menjadi `500`).
 25. **Payload RPC ikut divalidasi.** Controller di identity/attendance mengimpor DTO sebagai nilai (bukan `import type`), supaya `ValidationPipe` di service benar-benar memvalidasi payload TCP — sebelumnya metadata decorator hilang sehingga validasi hanya terjadi di gateway.
 26. **Nama karyawan di-trim sebelum divalidasi.** `fullName` hanya berisi spasi ditolak `400` (create) atau dianggap tidak diubah (update), supaya tidak ada karyawan dengan nama kosong.
-27. **Kode karyawan dibuat sistem.** Form hanya menampilkan kode (read-only); create tidak mengirim `employeeCode`, sehingga service membuat `EMP-0001`, `EMP-0002`, dan seterusnya. API tetap menerima kode manual untuk kebutuhan impor.
+27. **Kode karyawan dibuat sistem dan dipratinjau.** Form mengambil `GET /employees/next-code` dan menampilkan kode berikutnya (read-only) sebelum disimpan. Create tetap tidak mengirim `employeeCode`, jadi kode final dibuat service saat insert; pratinjau bisa berubah bila ada karyawan baru lain lebih dulu. API tetap menerima kode manual untuk kebutuhan impor.
 28. **Divisi memakai daftar tetap.** `DEPARTMENTS` ada di `libs/common/src/constants/departments.ts` (divalidasi `@IsIn`) dan salinannya di `frontend/src/config/departments.ts` untuk dropdown. Jabatan tetap teks bebas. Nilai lama yang tidak ada di daftar tetap ditampilkan sebagai opsi tambahan saat edit.
 29. **Foto dikompres sebelum diunggah.** `compressImage()` mengecilkan sisi terpanjang ke 1600 px dan mengubahnya ke JPEG kualitas 0.82 selama masih lebih kecil dari file asli. Batas server `MAX_UPLOAD_MB=2` berlaku pada file hasil kompres; input mentah dibatasi 20 MB agar browser tidak kehabisan memori saat decode.
 30. **Check-out dibuka setelah `WORK_END_TIME` (default 17:00).** Service menolak check-out lebih awal dengan `400`, dan UI menampilkan status terkunci sampai jam itu tiba. Aturan ini tidak berlaku untuk data lama yang sudah punya jam pulang.
 31. **Validasi ID menerima semua versi UUID.** `@IsUUID('all')` dipakai karena data lama bisa berisi UUID v1 (mis. akun `abi@example.com`), sedangkan akun baru memakai v4. Sebelumnya `@IsUUID('4')` membuat `/attendances/today` dan `/attendances/me` gagal `400` hanya untuk akun tersebut; ada test regresi di `rpc-payloads.dto.spec.ts`.
 32. **Sapaan login mengikuti riwayat browser.** Flag `dexahr.visited` di `localStorage` diset saat halaman login pertama kali dibuka: kunjungan pertama menampilkan "Selamat datang", kunjungan berikutnya "Selamat datang kembali".
-33. **Query tidak ditunda saat offline.** `networkMode: 'always'` di React Query membuat request tetap dicoba dan gagal dengan pesan error, bukan menggantung di state "kosong" ketika browser melaporkan offline.
+33. **Pembuatan kode aman dari balapan.** `employee_code` punya unique index; kalau dua admin menyimpan bersamaan, yang kalah mendapat `ER_DUP_ENTRY`, lalu mengulang otomatis dengan nomor berikutnya (maksimal 5 percobaan). Kode manual yang bentrok langsung `409`, bukan `500`. Ini sudah diuji dengan 5 request paralel: semua berhasil dengan kode unik berurutan.
+34. **Indikator loading ditahan minimal 700 ms.** `useMinimumLoading` menahan overlay "Memperbarui data…" supaya tidak berkedip saat request lokal selesai dalam hitungan milidetik. Tidak ada lagi garis progress tipis; indikator berupa chip + spinner di header, input pencarian, toolbar filter, dan overlay tabel.
+35. **Query tidak ditunda saat offline.** `networkMode: 'always'` di React Query membuat request tetap dicoba dan gagal dengan pesan error, bukan menggantung di state "kosong" ketika browser melaporkan offline.
 
 ---
 
 ## Menjalankan test
 
 ```bash
-npm test            # Jest (backend), 39 test termasuk e2e login
+npm test            # Jest (backend), 42 test termasuk e2e login
 npm run test:e2e    # hanya test e2e login di backend/test/
 npm run lint        # oxlint (backend) + ESLint (frontend)
 npm run build       # build ketiga app + build frontend
@@ -298,7 +301,7 @@ npm run build       # build ketiga app + build frontend
 Test yang ada sekarang:
 
 - `libs/common/src/errors/rpc-error.spec.ts` — pemetaan error RPC → HTTP, termasuk bentuk yang dibungkus transport TCP (regresi yang sempat membuat login gagal mengembalikan 500).
-- `apps/identity/src/employees/employees.service.spec.ts` — soft delete, larangan menonaktifkan akun sendiri, email duplikat, pembuatan kode otomatis, metadata pagination.
+- `apps/identity/src/employees/employees.service.spec.ts` — soft delete, larangan menonaktifkan akun sendiri, email duplikat, pembuatan kode otomatis, pratinjau kode berikutnya, retry saat kode bentrok (dua admin bersamaan), metadata pagination.
 - `apps/attendance/src/attendances/attendances.service.spec.ts` — check-in tepat waktu vs terlambat (termasuk batas toleransi), absen ganda ditolak, check-out butuh check-in, check-out sebelum jam pulang ditolak, check-out ganda ditolak, status hari ini, filter `listAll`, dan hitungan `summary`.
 - `apps/gateway/src/attendance/photo-storage.spec.ts` — tanda tangan isi file PNG/JPEG/WEBP diterima, file palsu/teks/GIF ditolak.
 - `libs/common/src/dto/attendances/rpc-payloads.dto.spec.ts` — payload absensi menerima UUID v1 maupun v4 dan menolak ID non-UUID.

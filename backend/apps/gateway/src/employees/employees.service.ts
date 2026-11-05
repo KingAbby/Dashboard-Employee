@@ -19,6 +19,10 @@ export class EmployeesService {
     return this.send<Paginated<EmployeeResponse>>(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_LIST, query);
   }
 
+  nextCode(): Promise<{ employeeCode: string }> {
+    return this.send<{ employeeCode: string }>(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_NEXT_CODE, {});
+  }
+
   detail(id: string): Promise<EmployeeResponse> {
     return this.send<EmployeeResponse>(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_GET, { id });
   }

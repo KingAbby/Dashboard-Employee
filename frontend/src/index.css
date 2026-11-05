@@ -104,6 +104,20 @@
     box-shadow: 0 0 0 3px var(--color-primary-tint);
   }
 
+  .input-base:disabled,
+  .input-base[readonly] {
+    background-color: var(--color-surface-muted);
+    color: var(--color-muted);
+    border-color: var(--color-line);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .input-base:disabled:hover,
+  .input-base[readonly]:hover {
+    border-color: var(--color-line);
+  }
+
   .input-error {
     border-color: var(--color-danger);
   }

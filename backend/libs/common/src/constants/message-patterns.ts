@@ -6,6 +6,7 @@ export const MESSAGE_PATTERNS = {
   IDENTITY_EMPLOYEE_LIST: 'identity.employee.list',
   IDENTITY_EMPLOYEE_GET: 'identity.employee.get',
   IDENTITY_EMPLOYEE_GET_MANY: 'identity.employee.getMany',
+  IDENTITY_EMPLOYEE_NEXT_CODE: 'identity.employee.nextCode',
   IDENTITY_EMPLOYEE_CREATE: 'identity.employee.create',
   IDENTITY_EMPLOYEE_UPDATE: 'identity.employee.update',
   IDENTITY_EMPLOYEE_DEACTIVATE: 'identity.employee.deactivate',

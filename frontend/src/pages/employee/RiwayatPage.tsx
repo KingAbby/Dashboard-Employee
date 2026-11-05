@@ -9,6 +9,7 @@ import { PhotoPreview } from '../../components/ui/PhotoPreview';
 import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatusBadge';
 import { useMyAttendances } from '../../features/attendance/api';
 import { toErrorMessage } from '../../lib/api';
+import { useMinimumLoading } from '../../lib/use-min-loading';
 import { formatDate, formatTime } from '../../lib/format';
 import type { Attendance, AttendancePhotoType } from '../../types/api';
 
@@ -27,6 +28,7 @@ export function RiwayatPage() {
     dateTo: dateTo || undefined,
   });
 
+  const showBusy = useMinimumLoading(query.isFetching && !query.isLoading);
   const isFiltering = Boolean(dateFrom || dateTo);
 
   const columns: Column<Attendance>[] = [
@@ -46,7 +48,9 @@ export function RiwayatPage() {
       cell: (row) => (
         <div>
           <p className="tabular-nums text-[12.5px] text-ink">{formatTime(row.checkInAt)}</p>
-          {row.note ? <p className="mt-0.5 max-w-[180px] truncate text-[11px] text-subtle">{row.note}</p> : null}
+          {row.note ? (
+            <p className="mt-0.5 max-w-[180px] truncate text-[11px] text-subtle">{row.note}</p>
+          ) : null}
         </div>
       ),
     },
@@ -158,11 +162,14 @@ export function RiwayatPage() {
           rows={query.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={query.isLoading}
+          fetching={showBusy}
           error={query.isError ? toErrorMessage(query.error) : null}
           onRetry={() => void query.refetch()}
           meta={query.data?.meta}
           onPageChange={setPage}
-          emptyTitle={isFiltering ? 'Tidak ada absensi pada rentang itu' : 'Belum ada riwayat absensi'}
+          emptyTitle={
+            isFiltering ? 'Tidak ada absensi pada rentang itu' : 'Belum ada riwayat absensi'
+          }
           emptyDescription={
             isFiltering
               ? 'Coba longgarkan rentang tanggalnya.'

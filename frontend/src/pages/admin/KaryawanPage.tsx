@@ -26,6 +26,7 @@ import {
   useEmployeesQuery,
 } from '../../features/employees/api';
 import { toErrorMessage } from '../../lib/api';
+import { useMinimumLoading } from '../../lib/use-min-loading';
 import { cn } from '../../lib/cn';
 import { formatDate } from '../../lib/format';
 import type { Employee } from '../../types/api';
@@ -96,6 +97,7 @@ export function KaryawanPage() {
     }
   };
 
+  const showBusy = useMinimumLoading(listQuery.isFetching && !listQuery.isLoading);
   const isFiltering = search.length > 0 || status !== 'all';
 
   const columns = useMemo<Column<Employee>[]>(
@@ -229,12 +231,23 @@ export function KaryawanPage() {
               placeholder="Cari nama, kode, atau email…"
               aria-label="Cari karyawan"
               icon={<SearchIcon size={15} />}
+              trailing={
+                showBusy ? (
+                  <RefreshIcon size={14} className="animate-spin text-primary" />
+                ) : undefined
+              }
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </div>
 
           <div className="flex items-center gap-2">
+            {showBusy ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-tint px-2.5 py-1 text-[11px] font-semibold text-primary">
+                <RefreshIcon size={12} className="animate-spin" />
+                Memperbarui…
+              </span>
+            ) : null}
             <div
               role="group"
               aria-label="Filter status karyawan"
@@ -273,7 +286,7 @@ export function KaryawanPage() {
             >
               <RefreshIcon
                 size={14}
-                className={listQuery.isFetching ? 'animate-spin text-primary' : undefined}
+                className={showBusy ? 'animate-spin text-primary' : undefined}
               />
             </button>
           </div>
@@ -285,7 +298,7 @@ export function KaryawanPage() {
           rows={listQuery.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={listQuery.isLoading}
-          fetching={listQuery.isFetching}
+          fetching={showBusy}
           error={listQuery.isError ? toErrorMessage(listQuery.error) : null}
           onRetry={() => void listQuery.refetch()}
           meta={listQuery.data?.meta}

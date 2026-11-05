@@ -34,6 +34,11 @@ export class EmployeesController {
     return this.employeesService.list(query);
   }
 
+  @Get('next-code')
+  nextCode() {
+    return this.employeesService.nextCode();
+  }
+
   @Get(':id')
   detail(@Param() params: IdParamDto) {
     return this.employeesService.detail(params.id);

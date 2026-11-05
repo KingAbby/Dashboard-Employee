@@ -30,6 +30,11 @@ export class EmployeesController {
     return this.employeesService.findOne(payload.id);
   }
 
+  @MessagePattern(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_NEXT_CODE)
+  nextCode() {
+    return this.employeesService.nextCode();
+  }
+
   @MessagePattern(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_CREATE)
   create(@Payload() payload: CreateEmployeePayload) {
     return this.employeesService.create(payload.dto);

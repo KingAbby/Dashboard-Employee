@@ -40,6 +40,10 @@ export interface LoginResponse {
   user: Employee;
 }
 
+export interface NextEmployeeCode {
+  employeeCode: string;
+}
+
 export type AttendanceStatus = 'ON_TIME' | 'LATE';
 export type AttendancePhotoType = 'in' | 'out';
 
