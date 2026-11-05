@@ -20,9 +20,6 @@
     "test:e2e": "npm --prefix backend run test:e2e",
     "build": "npm --prefix backend run build && npm --prefix frontend run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.2.5"
   }

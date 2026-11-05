@@ -105,8 +105,6 @@ const seedIdentity = async (): Promise<{ id: string; isAdmin: boolean }[]> => {
 
   try {
     for (const seed of SEED_EMPLOYEES) {
-      // Cocokkan lewat email, id, ATAU kode. Row yang id/kodenya sama tapi
-      // emailnya berbeda berarti data sudah diedit admin — jangan ditimpa.
       const existing = await employees.findOne({
         where: [{ email: seed.email }, { id: seed.id }, { employeeCode: seed.employeeCode }],
       });
@@ -123,7 +121,6 @@ const seedIdentity = async (): Promise<{ id: string; isAdmin: boolean }[]> => {
         continue;
       }
 
-      // insert (bukan save) supaya tidak mungkin menimpa row lain lewat primary key.
       await employees.insert({
         id: seed.id,
         employeeCode: seed.employeeCode,
@@ -166,21 +163,18 @@ const seedAttendance = async (employeeIds: string[]): Promise<void> => {
         });
         if (existing) continue;
 
-        // Pola tetap: sebagian besar tepat waktu, sisanya terlambat.
         const late = (dayIndex + employeeIndex) % 4 === 1;
         const status = late ? AttendanceStatus.LATE : AttendanceStatus.ON_TIME;
 
         const [year, month, day] = attendanceDate.split('-').map(Number);
         const minuteOffset = (employeeIndex * 7 + dayIndex * 11) % 35;
-        const checkInHourUtc = late ? 2 : 1; // 09:xx / 08:xx WIB
+        const checkInHourUtc = late ? 2 : 1;
         const checkInMinuteUtc = (late ? 10 : 0) + minuteOffset;
 
         const checkInAt = new Date(
           Date.UTC(year, month - 1, day, checkInHourUtc, checkInMinuteUtc, 0),
         );
-        const checkOutAt = new Date(
-          Date.UTC(year, month - 1, day, 9, 5 + minuteOffset, 0), // 16:xx WIB
-        );
+        const checkOutAt = new Date(Date.UTC(year, month - 1, day, 9, 5 + minuteOffset, 0));
 
         await attendances.save(
           attendances.create({

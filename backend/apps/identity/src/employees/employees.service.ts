@@ -51,8 +51,6 @@ export class EmployeesService {
       isActive: dto.isActive ?? true,
     };
 
-    // Dua admin bisa membuat karyawan bersamaan; unique index yang menang,
-    // pemanggil yang kalah mengulang dengan kode setelahnya.
     let nextAttempt = 1;
     for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt += 1) {
       const employeeCode = manualCode ?? (await this.generateEmployeeCode(nextAttempt));
@@ -146,7 +144,6 @@ export class EmployeesService {
 
     if (dto.employeeCode !== undefined) {
       const code = dto.employeeCode.trim();
-      // Kode kosong dianggap "tidak diubah", sama seperti perilaku create.
       if (code && code !== employee.employeeCode) {
         await this.assertCodeAvailable(code, id);
         employee.employeeCode = code;

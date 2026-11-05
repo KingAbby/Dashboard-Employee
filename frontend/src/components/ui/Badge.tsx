@@ -37,7 +37,9 @@ export function Badge({ tone = 'neutral', dot = false, children, className }: Ba
         className,
       )}
     >
-      {dot ? <span className={cn('h-1.5 w-1.5 rounded-full', DOTS[tone])} aria-hidden="true" /> : null}
+      {dot ? (
+        <span className={cn('h-1.5 w-1.5 rounded-full', DOTS[tone])} aria-hidden="true" />
+      ) : null}
       {children}
     </span>
   );

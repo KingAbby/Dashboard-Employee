@@ -16,12 +16,7 @@ const LABEL: Record<AttendancePhotoType, string> = {
 
 export function PhotoPreview({ open, onClose, attendanceId, type }: PhotoPreviewProps) {
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={LABEL[type]}
-      size="md"
-    >
+    <Modal open={open} onClose={onClose} title={LABEL[type]} size="md">
       {open && attendanceId ? (
         <AttendancePhoto
           key={`${attendanceId}-${type}`}

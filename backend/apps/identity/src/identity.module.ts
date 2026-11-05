@@ -20,7 +20,6 @@ import { HealthController } from './health.controller';
         database: config.get<string>('DB_IDENTITY_NAME', 'hr_identity'),
         entities: [Employee],
         synchronize: false,
-        // DATETIME dibaca sebagai UTC supaya konsisten dengan aturan "simpan UTC".
         timezone: 'Z',
         charset: 'utf8mb4',
       }),

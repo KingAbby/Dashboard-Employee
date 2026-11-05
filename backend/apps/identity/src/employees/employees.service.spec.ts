@@ -180,9 +180,14 @@ describe('EmployeesService', () => {
         addOrderBy: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([[buildEmployee()], 21]),
+        getManyAndCount: jest.fn<() => Promise<[Employee[], number]>>(async () => [
+          [buildEmployee()],
+          21,
+        ]),
       };
-      repository.createQueryBuilder = jest.fn().mockReturnValue(queryBuilder);
+      repository.createQueryBuilder = jest
+        .fn()
+        .mockReturnValue(queryBuilder) as unknown as typeof repository.createQueryBuilder;
       const service = new EmployeesService(repository);
 
       const result = await service.findAll({ page: 2, limit: 10 });

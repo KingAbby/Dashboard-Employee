@@ -110,7 +110,12 @@ export function AbsensiPage() {
       headerClassName: 'text-right',
       className: 'text-right',
       cell: (row) => (
-        <Button className="cursor-pointer" size="sm" variant="secondary" onClick={() => setPreview(row)}>
+        <Button
+          className="cursor-pointer"
+          size="sm"
+          variant="secondary"
+          onClick={() => setPreview(row)}
+        >
           Lihat bukti
         </Button>
       ),

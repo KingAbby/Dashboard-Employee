@@ -1,4 +1,3 @@
-/** Identitas aplikasi; logo berasal dari public/DexaHR.png yang dipangkas. */
 export const BRAND = {
   name: 'DexaHR',
   tagline: 'Portal Kehadiran',

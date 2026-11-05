@@ -64,7 +64,6 @@ export class AttendanceController {
     try {
       return await this.attendanceService.checkIn(user.id, file.filename, body.note);
     } catch (error) {
-      // Absen ditolak (mis. sudah absen hari ini) — jangan tinggalkan file yatim.
       await rm(file.path, { force: true });
       throw error;
     }

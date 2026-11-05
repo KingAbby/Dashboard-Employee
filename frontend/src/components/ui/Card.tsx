@@ -8,9 +8,7 @@ export interface CardProps {
 }
 
 export function Card({ children, className, padded = true }: CardProps) {
-  return (
-    <div className={cn('card-surface', padded && 'p-5', className)}>{children}</div>
-  );
+  return <div className={cn('card-surface', padded && 'p-5', className)}>{children}</div>;
 }
 
 export interface CardHeaderProps {
