@@ -26,10 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  /**
-   * Profil diambil ulang dari identity setiap request, supaya akun yang
-   * dinonaktifkan langsung kehilangan akses walau tokennya belum kedaluwarsa.
-   */
+  /** Profil diambil ulang tiap request agar akun nonaktif langsung kehilangan akses. */
   async validate(payload: JwtPayload): Promise<AuthUser> {
     let employee: EmployeeResponse;
 

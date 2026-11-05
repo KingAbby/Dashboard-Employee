@@ -14,7 +14,6 @@ const LABEL: Record<AttendancePhotoType, string> = {
   out: 'Foto absen pulang',
 };
 
-/** Foto tidak publik, jadi diambil sebagai blob memakai header Authorization. */
 export function PhotoPreview({ open, onClose, attendanceId, type }: PhotoPreviewProps) {
   return (
     <Modal

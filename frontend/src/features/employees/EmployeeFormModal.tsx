@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
 import { AlertIcon } from '../../components/ui/icons';
+import { DEPARTMENTS } from '../../config/departments';
 import { useToast } from '../../components/ui/useToast';
 import { toErrorMessage } from '../../lib/api';
 import type { Employee, EmployeePayload } from '../../types/api';
@@ -21,11 +22,6 @@ const buildSchema = (isEdit: boolean) =>
       .min(2, 'Nama lengkap minimal 2 karakter.')
       .max(120, 'Nama lengkap maksimal 120 karakter.'),
     email: z.string().min(1, 'Email wajib diisi.').email('Format email tidak valid.'),
-    employeeCode: z
-      .string()
-      .max(20, 'Kode maksimal 20 karakter.')
-      .regex(/^[A-Za-z0-9-]*$/, 'Hanya huruf, angka, dan tanda hubung.')
-      .optional(),
     password: isEdit
       ? z.string().max(72, 'Password maksimal 72 karakter.').optional()
       : z.string().min(8, 'Password minimal 8 karakter.').max(72, 'Password maksimal 72 karakter.'),
@@ -46,7 +42,6 @@ type FormValues = z.infer<ReturnType<typeof buildSchema>>;
 const EMPTY: FormValues = {
   fullName: '',
   email: '',
-  employeeCode: '',
   password: '',
   role: 'EMPLOYEE',
   position: '',
@@ -61,7 +56,6 @@ const toFormValues = (employee: Employee | null): FormValues =>
     ? {
         fullName: employee.fullName,
         email: employee.email,
-        employeeCode: employee.employeeCode,
         password: '',
         role: employee.role,
         position: employee.position ?? '',
@@ -80,7 +74,6 @@ const trimmed = (value?: string): string | undefined => {
 const toPayload = (values: FormValues, isEdit: boolean): EmployeePayload => ({
   fullName: values.fullName.trim(),
   email: values.email.trim().toLowerCase(),
-  employeeCode: trimmed(values.employeeCode),
   role: values.role,
   position: trimmed(values.position),
   department: trimmed(values.department),
@@ -95,16 +88,18 @@ interface EmployeeFormProps {
   onClose: () => void;
 }
 
-/**
- * Dipisah dari Modal dan diberi key di parent, sehingga nilai awal form
- * dihitung sekali per karyawan tanpa perlu reset manual lewat effect.
- */
+/** Dipisah dan diberi key agar nilai awal form dihitung sekali per karyawan. */
 function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
   const isEdit = Boolean(employee);
   const { toast } = useToast();
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee();
   const [formError, setFormError] = useState<string | null>(null);
+  const departmentOptions =
+    employee?.department &&
+    !DEPARTMENTS.includes(employee.department as (typeof DEPARTMENTS)[number])
+      ? [employee.department, ...DEPARTMENTS]
+      : [...DEPARTMENTS];
 
   const {
     register,
@@ -167,10 +162,11 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
 
           <Input
             label="Kode karyawan"
-            placeholder="Kosongkan untuk otomatis"
-            hint="Format EMP-0001, dibuat otomatis bila kosong."
-            error={errors.employeeCode?.message}
-            {...register('employeeCode')}
+            value={employee?.employeeCode ?? ''}
+            placeholder="Otomatis saat disimpan"
+            hint="Note: Generate otomatis oleh sistem."
+            readOnly
+            disabled
           />
 
           <Input
@@ -189,23 +185,26 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             <option value="ADMIN_HRD">Admin HRD</option>
           </Select>
 
-          <Input
-            label="Divisi"
-            placeholder="Engineering"
-            error={errors.department?.message}
-            {...register('department')}
-          />
+          <Select label="Divisi" error={errors.department?.message} {...register('department')}>
+            <option value="">Tanpa divisi</option>
+            {departmentOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
 
           <Input
             label="Jabatan"
-            placeholder="Frontend Engineer"
+            placeholder="Software Engineer"
+            hint="Note: Software Engineer, Staf Keuangan, etc."
             error={errors.position?.message}
             {...register('position')}
           />
 
           <Input
             label="Nomor telepon"
-            placeholder="0812-0000-0000"
+            placeholder="0812-3456-7890"
             error={errors.phone?.message}
             {...register('phone')}
           />

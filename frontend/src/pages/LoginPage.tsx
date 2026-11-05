@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -18,6 +18,7 @@ import { BRAND } from '../config/brand';
 import { useAuth } from '../features/auth/useAuth';
 import { homePathFor } from '../features/auth/paths';
 import { toErrorMessage } from '../lib/api';
+import { hasVisitedBefore, markVisited } from '../lib/session';
 
 const schema = z.object({
   email: z.string().min(1, 'Email wajib diisi.').email('Format email tidak valid.'),
@@ -74,6 +75,11 @@ export function LoginPage() {
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [returning] = useState(() => hasVisitedBefore());
+
+  useEffect(() => {
+    markVisited();
+  }, []);
 
   const {
     register,
@@ -165,10 +171,12 @@ export function LoginPage() {
 
           <p className="label-caps text-subtle">Masuk portal</p>
           <h2 className="mt-2 text-[26px] font-bold leading-tight tracking-[-0.025em] text-ink">
-            Selamat datang kembali
+            {returning ? 'Selamat datang kembali' : 'Selamat datang'}
           </h2>
           <p className="mt-1.5 text-[13px] text-muted">
-            Gunakan email kantor yang diberikan admin HRD.
+            {returning
+              ? 'Gunakan email kantor yang diberikan admin HRD.'
+              : 'Masuk dengan email kantor dari admin HRD untuk mencatat kehadiran.'}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-7 space-y-4">

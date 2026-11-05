@@ -1,4 +1,4 @@
-import { MESSAGE_PATTERNS, type LoginDto } from '@app/common';
+import { LoginDto, MESSAGE_PATTERNS } from '@app/common';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';

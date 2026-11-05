@@ -1,12 +1,12 @@
 import {
   MESSAGE_PATTERNS,
-  type AttendanceIdPayloadDto,
+  AttendanceIdPayloadDto,
+  CheckInPayloadDto,
+  CheckOutPayloadDto,
+  EmployeeTodayPayloadDto,
+  ListAttendancesQueryDto,
+  MyAttendancesQueryDto,
   type AttendanceResponse,
-  type CheckInPayloadDto,
-  type CheckOutPayloadDto,
-  type EmployeeTodayPayloadDto,
-  type ListAttendancesQueryDto,
-  type MyAttendancesQueryDto,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -36,7 +36,6 @@ export class AttendancesController {
     return this.attendancesService.listMine(query);
   }
 
-  /** Admin HRD: seluruh absensi dengan filter tanggal, karyawan, dan status. */
   @MessagePattern(MESSAGE_PATTERNS.ATTENDANCE_LIST)
   listAll(@Payload() query: ListAttendancesQueryDto) {
     return this.attendancesService.listAll(query);

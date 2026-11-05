@@ -253,7 +253,9 @@ export function KaryawanPage() {
                     }}
                     className={cn(
                       'h-full rounded-[7px] px-3 text-[11px] font-semibold transition-colors',
-                      active ? 'bg-primary-tint font-bold text-primary' : 'text-muted hover:text-ink',
+                      active
+                        ? 'bg-primary-tint font-bold text-primary'
+                        : 'text-muted hover:text-ink',
                     )}
                   >
                     {filter.label}
@@ -267,12 +269,12 @@ export function KaryawanPage() {
               onClick={() => void listQuery.refetch()}
               aria-label="Muat ulang data"
               title="Muat ulang"
-              className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-[9px] border border-line text-muted transition-colors hover:bg-bg hover:text-ink',
-                listQuery.isFetching && 'animate-spin text-primary',
-              )}
+              className="flex h-10 w-10 items-center justify-center rounded-[9px] border border-line text-muted transition-colors hover:bg-bg hover:text-ink"
             >
-              <RefreshIcon size={14} />
+              <RefreshIcon
+                size={14}
+                className={listQuery.isFetching ? 'animate-spin text-primary' : undefined}
+              />
             </button>
           </div>
         </div>
@@ -283,6 +285,7 @@ export function KaryawanPage() {
           rows={listQuery.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={listQuery.isLoading}
+          fetching={listQuery.isFetching}
           error={listQuery.isError ? toErrorMessage(listQuery.error) : null}
           onRetry={() => void listQuery.refetch()}
           meta={listQuery.data?.meta}

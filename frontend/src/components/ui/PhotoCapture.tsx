@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from './Button';
 import { AlertIcon, CameraIcon, CloseIcon, RefreshIcon } from './icons';
 import { cn } from '../../lib/cn';
+import { MAX_INPUT_MB, MAX_PHOTO_MB, compressImage } from '../../lib/compress-image';
 
-const MAX_SIZE_MB = 5;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export interface PhotoCaptureProps {
@@ -13,10 +13,7 @@ export interface PhotoCaptureProps {
   disabled?: boolean;
 }
 
-/**
- * Pilih file / ambil dari kamera, dengan pratinjau sebelum dikirim.
- * Validasi di sini hanya untuk UX; server tetap memeriksa MIME, ekstensi, dan ukuran.
- */
+/** Validasi di klien hanya untuk UX; server tetap memeriksa MIME dan ukuran. */
 export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -27,6 +24,7 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
   const [cameraOpen, setCameraOpen] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(
     () => () => {
@@ -50,18 +48,29 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
     onChange(next);
   };
 
-  const accept = (candidate: File) => {
+  const accept = async (candidate: File) => {
     if (!ALLOWED_TYPES.includes(candidate.type)) {
       setLocalError('Format foto harus JPG, PNG, atau WEBP.');
       return;
     }
-    if (candidate.size > MAX_SIZE_MB * 1024 * 1024) {
-      setLocalError(`Ukuran foto maksimal ${MAX_SIZE_MB} MB.`);
+    if (candidate.size > MAX_INPUT_MB * 1024 * 1024) {
+      setLocalError(`Foto terlalu besar. Pilih file maksimal ${MAX_INPUT_MB} MB.`);
       return;
     }
+
+    setProcessing(true);
     setLocalError(null);
     setCameraError(null);
-    selectFile(candidate);
+    try {
+      const compressed = await compressImage(candidate);
+      if (compressed.size > MAX_PHOTO_MB * 1024 * 1024) {
+        setLocalError(`Ukuran foto setelah dikompres masih di atas ${MAX_PHOTO_MB} MB.`);
+        return;
+      }
+      selectFile(compressed);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const openCamera = async () => {
@@ -96,7 +105,7 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
-        accept(new File([blob], `absen-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+        void accept(new File([blob], `absen-${Date.now()}.jpg`, { type: 'image/jpeg' }));
         closeCamera();
       },
       'image/jpeg',
@@ -105,6 +114,7 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
   };
 
   const message = localError ?? error ?? cameraError;
+  const locked = disabled || processing;
   const cameraSupported =
     typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices?.getUserMedia);
 
@@ -116,10 +126,10 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
         accept={ALLOWED_TYPES.join(',')}
         capture="user"
         className="sr-only"
-        disabled={disabled}
+        disabled={locked}
         onChange={(event) => {
           const selected = event.target.files?.[0];
-          if (selected) accept(selected);
+          if (selected) void accept(selected);
           event.target.value = '';
         }}
       />
@@ -140,10 +150,15 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
               className="h-[196px] w-full rounded-[9px] bg-ink/80 object-cover"
             />
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={capture} icon={<CameraIcon size={13} />}>
-                Ambil foto
+              <Button
+                size="sm"
+                onClick={capture}
+                icon={<CameraIcon size={13} />}
+                disabled={processing}
+              >
+                Ambil foto{processing ? '…' : ''}
               </Button>
-              <Button size="sm" variant="secondary" onClick={closeCamera}>
+              <Button size="sm" variant="secondary" onClick={closeCamera} disabled={processing}>
                 Batal
               </Button>
             </div>
@@ -160,7 +175,7 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
                 size="sm"
                 variant="secondary"
                 onClick={() => inputRef.current?.click()}
-                disabled={disabled}
+                disabled={locked}
                 icon={<RefreshIcon size={13} />}
               >
                 Ganti
@@ -169,7 +184,7 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
                 size="sm"
                 variant="ghost"
                 onClick={() => selectFile(null)}
-                disabled={disabled}
+                disabled={locked}
                 icon={<CloseIcon size={13} />}
               >
                 Hapus
@@ -184,20 +199,27 @@ export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoC
             <div>
               <p className="text-[12.5px] font-semibold text-ink">Foto bukti sedang bekerja</p>
               <p className="mt-0.5 text-[11.5px] text-muted">
-                JPG, PNG, atau WEBP · maksimal {MAX_SIZE_MB} MB
+                {processing
+                  ? 'Mengompres foto…'
+                  : `JPG, PNG, atau WEBP · otomatis dikompres, maks. ${MAX_PHOTO_MB} MB`}
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <Button
                 size="sm"
                 onClick={() => inputRef.current?.click()}
-                disabled={disabled}
+                disabled={locked}
                 icon={<RefreshIcon size={13} />}
               >
-                Pilih foto
+                {processing ? 'Memproses…' : 'Pilih foto'}
               </Button>
               {cameraSupported ? (
-                <Button size="sm" variant="secondary" onClick={() => void openCamera()} disabled={disabled}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => void openCamera()}
+                  disabled={locked}
+                >
                   Kamera
                 </Button>
               ) : null}

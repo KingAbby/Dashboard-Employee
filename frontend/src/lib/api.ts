@@ -2,7 +2,8 @@ import axios from 'axios';
 import type { ApiErrorBody } from '../types/api';
 import { getToken, notifySessionExpired } from './session';
 
-export const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000/api';
+export const API_URL =
+  (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -34,7 +35,6 @@ const readBody = (error: unknown): ApiErrorBody | null => {
   return body && typeof body === 'object' && 'message' in body ? body : null;
 };
 
-/** Semua pesan error dari server, siap ditampilkan di form atau toast. */
 export const toErrorList = (error: unknown): string[] => {
   const body = readBody(error);
 

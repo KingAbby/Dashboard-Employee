@@ -1,10 +1,10 @@
 import {
   ERROR_MESSAGES,
+  AttendancePhotoQueryDto,
   IdParamDto,
   ListAttendancesQueryDto,
   ListMyAttendancesQueryDto,
   Role,
-  type AttendancePhotoQueryDto,
   type AuthUser,
 } from '@app/common';
 import {
@@ -34,7 +34,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AttendanceService } from './attendance.service';
 import { AttendanceBodyDto } from './dto/attendance-body.dto';
-import { attendancePhotoPath, mimeForPhoto } from './photo-storage';
+import { attendancePhotoPath, mimeForPhoto, photoContentMatches } from './photo-storage';
 
 @Controller('attendances')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -59,6 +59,7 @@ export class AttendanceController {
     @CurrentUser() user: AuthUser,
   ) {
     if (!file) throw new BadRequestException(ERROR_MESSAGES.ATTENDANCE_PHOTO_REQUIRED);
+    await this.assertPhotoContent(file);
 
     try {
       return await this.attendanceService.checkIn(user.id, file.filename, body.note);
@@ -79,6 +80,7 @@ export class AttendanceController {
     @CurrentUser() user: AuthUser,
   ) {
     if (!file) throw new BadRequestException(ERROR_MESSAGES.ATTENDANCE_PHOTO_REQUIRED);
+    await this.assertPhotoContent(file);
 
     try {
       return await this.attendanceService.checkOut(user.id, file.filename, body.note);
@@ -94,14 +96,12 @@ export class AttendanceController {
     return this.attendanceService.listMine(user.id, query);
   }
 
-  /** Admin HRD: seluruh absensi (view only), dengan filter tanggal/karyawan/status. */
   @Get()
   @Roles(Role.ADMIN_HRD)
   list(@Query() query: ListAttendancesQueryDto) {
     return this.attendanceService.list(query);
   }
 
-  /** Admin HRD: ringkasan hari ini untuk dashboard. */
   @Get('summary')
   @Roles(Role.ADMIN_HRD)
   summary() {
@@ -143,5 +143,16 @@ export class AttendanceController {
       type: mimeForPhoto(filePath),
       disposition: 'inline',
     });
+  }
+
+  /**
+   * Multer hanya memercayai MIME dari klien, jadi isi file dicek ulang lewat
+   * tanda tangan PNG/JPEG/WEBP sebelum disimpan.
+   */
+  private async assertPhotoContent(file: Express.Multer.File): Promise<void> {
+    if (await photoContentMatches(file.path, file.mimetype)) return;
+
+    await rm(file.path, { force: true });
+    throw new BadRequestException(ERROR_MESSAGES.ATTENDANCE_PHOTO_INVALID_TYPE);
   }
 }

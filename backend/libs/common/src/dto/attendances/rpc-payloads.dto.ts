@@ -1,9 +1,9 @@
-import { IsOptional, IsString, IsUUID, MaxLength, Matches } from 'class-validator';
+import { IsDateString, IsOptional, IsString, IsUUID, MaxLength, Matches } from 'class-validator';
 import { PaginationQueryDto } from '../pagination-query.dto';
 
 /** employeeId selalu diambil dari JWT di gateway, bukan dari klien. */
 export class CheckInPayloadDto {
-  @IsUUID('4', { message: 'ID karyawan tidak valid.' })
+  @IsUUID('all', { message: 'ID karyawan tidak valid.' })
   employeeId!: string;
 
   @IsString({ message: 'Foto bukti wajib dilampirkan.' })
@@ -19,24 +19,26 @@ export class CheckInPayloadDto {
 export class CheckOutPayloadDto extends CheckInPayloadDto {}
 
 export class EmployeeTodayPayloadDto {
-  @IsUUID('4', { message: 'ID karyawan tidak valid.' })
+  @IsUUID('all', { message: 'ID karyawan tidak valid.' })
   employeeId!: string;
 }
 
 export class AttendanceIdPayloadDto {
-  @IsUUID('4', { message: 'ID absensi tidak valid.' })
+  @IsUUID('all', { message: 'ID absensi tidak valid.' })
   id!: string;
 }
 
 export class MyAttendancesQueryDto extends PaginationQueryDto {
-  @IsUUID('4', { message: 'ID karyawan tidak valid.' })
+  @IsUUID('all', { message: 'ID karyawan tidak valid.' })
   employeeId!: string;
 
   @IsOptional()
+  @IsDateString({ strict: true }, { message: 'Tanggal mulai tidak valid.' })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Tanggal mulai harus berformat YYYY-MM-DD.' })
   dateFrom?: string;
 
   @IsOptional()
+  @IsDateString({ strict: true }, { message: 'Tanggal akhir tidak valid.' })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Tanggal akhir harus berformat YYYY-MM-DD.' })
   dateTo?: string;
 }

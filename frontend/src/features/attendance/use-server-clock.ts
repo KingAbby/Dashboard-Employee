@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/**
- * Jam tampilan yang diselaraskan dengan waktu server. Offset diukur sekali
- * tiap `serverTime` berubah (di luar render), lalu UI berdetak memakai jam
- * lokal. Server tetap sumber kebenaran untuk absensi.
- */
+/** Selaraskan jam tampilan dengan server; server tetap sumber kebenaran. */
 export const useServerClock = (serverTime: string | undefined): Date => {
   const [offsetMs, setOffsetMs] = useState(0);
   const [now, setNow] = useState(() => Date.now());

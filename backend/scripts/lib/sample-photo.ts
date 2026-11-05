@@ -1,10 +1,6 @@
 import { deflateSync } from 'node:zlib';
 
-/**
- * Membuat PNG gradient sederhana tanpa dependensi gambar tambahan.
- * Dipakai hanya untuk foto contoh di data seed, supaya modal pratinjau
- * admin punya file yang benar-benar bisa dibuka.
- */
+/** PNG gradient tanpa dependency, hanya untuk foto contoh seed. */
 
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);

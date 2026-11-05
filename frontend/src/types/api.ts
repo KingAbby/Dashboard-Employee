@@ -61,6 +61,7 @@ export interface TodayAttendance {
   date: string;
   serverTime: string;
   workStartTime: string;
+  workEndTime: string;
   lateToleranceMinutes: number;
   attendance: Attendance | null;
 }
@@ -92,6 +93,7 @@ export interface AttendanceAdminQuery {
   dateFrom?: string;
   dateTo?: string;
   employeeId?: string;
+  search?: string;
   status?: AttendanceStatus;
 }
 

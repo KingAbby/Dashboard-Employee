@@ -1,7 +1,4 @@
-/**
- * Semua perhitungan waktu absensi memakai zona aplikasi (Asia/Jakarta),
- * bukan zona server atau browser. Fungsi di sini murni (tanpa dependency).
- */
+/** Perhitungan waktu memakai zona aplikasi, bukan zona server/browser. */
 
 export const DEFAULT_TIMEZONE = 'Asia/Jakarta';
 
@@ -26,7 +23,8 @@ export const toZonedParts = (instant: Date, timeZone: string): ZonedParts => {
     .formatToParts(instant)
     .filter((part) => part.type !== 'literal');
 
-  const value = (type: string): number => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  const value = (type: string): number =>
+    Number(parts.find((part) => part.type === type)?.value ?? 0);
 
   const hour = value('hour');
   const minute = value('minute');
@@ -45,10 +43,7 @@ export const parseTimeToMinutes = (time: string): number => {
   return Number(hours) * 60 + Number(minutes);
 };
 
-/**
- * Terlambat bila jam masuk melewati WORK_START_TIME + toleransi.
- * Semua argumen sudah dalam menit sejak tengah malam zona aplikasi.
- */
+/** Terlambat bila jam masuk melewati WORK_START_TIME + toleransi (menit). */
 export const isLateCheckIn = (
   checkInMinutes: number,
   workStartMinutes: number,

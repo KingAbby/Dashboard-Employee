@@ -10,10 +10,7 @@ export interface AttendancePhotoModalProps {
   onClose: () => void;
 }
 
-/**
- * Pratinjau foto bukti milik satu absensi: masuk dan pulang berdampingan.
- * Hanya baca — admin tidak bisa mengubah atau menghapus data dari sini.
- */
+/** Pratinjau foto masuk/pulang; read-only untuk admin. */
 export function AttendancePhotoModal({ attendance, onClose }: AttendancePhotoModalProps) {
   const employeeName = attendance?.employee?.fullName ?? 'Karyawan tidak dikenal';
 

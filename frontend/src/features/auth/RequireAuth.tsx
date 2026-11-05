@@ -7,10 +7,7 @@ export interface RequireAuthProps {
   roles?: Role[];
 }
 
-/**
- * Route guard: belum login → /login, role tidak cocok → halaman utama
- * role-nya sendiri (bukan halaman error kosong).
- */
+/** Belum login → /login; role salah → halaman utama role tersebut. */
 export function RequireAuth({ roles }: RequireAuthProps) {
   const { user } = useAuth();
   const location = useLocation();

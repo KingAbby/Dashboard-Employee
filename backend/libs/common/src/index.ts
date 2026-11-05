@@ -1,5 +1,6 @@
 export * from './constants/message-patterns';
 export * from './constants/messages';
+export * from './constants/departments';
 export * from './enums/role.enum';
 export * from './enums/attendance-status.enum';
 export * from './errors/rpc-error';

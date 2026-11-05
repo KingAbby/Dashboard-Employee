@@ -23,7 +23,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { EmployeesService } from './employees.service';
 
-/** Use case 2: admin HRD mengelola data master karyawan. */
 @Controller('employees')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN_HRD)

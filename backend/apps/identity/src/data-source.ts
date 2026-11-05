@@ -2,10 +2,7 @@ import { DataSource } from 'typeorm';
 import { Employee } from './employees/entities/employee.entity';
 import { CreateEmployees1762300000000 } from './migrations/1762300000000-create-employees';
 
-/**
- * DataSource khusus tooling (migration & seed). Service memakai koneksi
- * yang dirakit lewat TypeOrmModule di identity.module.ts.
- */
+/** DataSource khusus migration & seed; service memakai TypeOrmModule. */
 export const identityDataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST ?? 'localhost',

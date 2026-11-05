@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Avatar } from '../../components/ui/Avatar';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -7,11 +7,10 @@ import { DataTable, type Column } from '../../components/ui/DataTable';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Select } from '../../components/ui/Select';
-import { RefreshIcon } from '../../components/ui/icons';
+import { RefreshIcon, SearchIcon } from '../../components/ui/icons';
 import { AttendancePhotoModal } from '../../features/attendance/AttendancePhotoModal';
 import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatusBadge';
 import { useAdminAttendances } from '../../features/attendance/api';
-import { useEmployeesQuery } from '../../features/employees/api';
 import { toErrorMessage } from '../../lib/api';
 import { formatDate, formatTime, todayISODate } from '../../lib/format';
 import type { AdminAttendance, AttendanceStatus } from '../../types/api';
@@ -30,7 +29,8 @@ export function AbsensiPage() {
   const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [employeeId, setEmployeeId] = useState('');
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [preview, setPreview] = useState<AdminAttendance | null>(null);
 
@@ -39,19 +39,22 @@ export function AbsensiPage() {
     limit: PAGE_SIZE,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
-    employeeId: employeeId || undefined,
+    search: debouncedSearch || undefined,
     status: status === 'all' ? undefined : status,
   });
 
-  const employeesQuery = useEmployeesQuery({ page: 1, limit: 100 });
-  const employees = employeesQuery.data?.data ?? [];
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const isFiltering = Boolean(dateFrom || dateTo || employeeId || status !== 'all');
+  const isFiltering = Boolean(dateFrom || dateTo || search || status !== 'all');
 
   const resetFilters = () => {
     setDateFrom('');
     setDateTo('');
-    setEmployeeId('');
+    setSearch('');
+    setDebouncedSearch('');
     setStatus('all');
     setPage(1);
   };
@@ -163,24 +166,18 @@ export function AbsensiPage() {
             >
               Hari ini
             </Button>
-            <Select
-              label="Karyawan"
+            <Input
+              label="Cari karyawan"
+              type="search"
               className="w-full sm:min-w-[220px] sm:flex-1"
-              value={employeeId}
+              placeholder="Nama, kode, atau email"
+              icon={<SearchIcon size={14} />}
+              value={search}
               onChange={(event) => {
-                setEmployeeId(event.target.value);
+                setSearch(event.target.value);
                 setPage(1);
               }}
-            >
-              <option value="">
-                {employeesQuery.isLoading ? 'Memuat karyawan…' : 'Semua karyawan'}
-              </option>
-              {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.fullName} · {employee.employeeCode}
-                </option>
-              ))}
-            </Select>
+            />
             <Select
               label="Status"
               className="w-full sm:w-[180px]"
@@ -206,9 +203,11 @@ export function AbsensiPage() {
 
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] text-subtle">
-              {isFiltering
-                ? 'Filter aktif. Data di bawah hanya yang cocok dengan filter.'
-                : 'Seluruh absensi, terbaru di atas.'}
+              {listQuery.isFetching
+                ? 'Memperbarui data…'
+                : isFiltering
+                  ? 'Filter aktif. Data di bawah hanya yang cocok dengan filter.'
+                  : 'Seluruh absensi, terbaru di atas.'}
             </p>
             <button
               type="button"
@@ -231,6 +230,7 @@ export function AbsensiPage() {
           rows={listQuery.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={listQuery.isLoading}
+          fetching={listQuery.isFetching}
           error={listQuery.isError ? toErrorMessage(listQuery.error) : null}
           onRetry={() => void listQuery.refetch()}
           meta={listQuery.data?.meta}
@@ -238,7 +238,7 @@ export function AbsensiPage() {
           emptyTitle={isFiltering ? 'Tidak ada absensi yang cocok' : 'Belum ada absensi'}
           emptyDescription={
             isFiltering
-              ? 'Coba longgarkan rentang tanggal, ganti karyawan, atau ubah status.'
+              ? 'Coba longgarkan rentang tanggal, ubah kata kunci, atau ganti status.'
               : 'Data akan muncul setelah karyawan absen masuk dengan foto bukti.'
           }
           emptyAction={

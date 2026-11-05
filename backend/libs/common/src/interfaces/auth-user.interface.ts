@@ -1,6 +1,5 @@
 import type { Role } from '../enums/role.enum';
 
-/** Profil user yang dipakai di dalam token dan request. */
 export interface AuthUser {
   id: string;
   employeeCode: string;

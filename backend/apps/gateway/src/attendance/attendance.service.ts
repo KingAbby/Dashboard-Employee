@@ -17,10 +17,7 @@ import { firstValueFrom } from 'rxjs';
 import { ATTENDANCE_CLIENT } from '../clients/clients.module';
 import { EmployeesService } from '../employees/employees.service';
 
-/**
- * Potongan data karyawan yang boleh ikut di daftar absensi admin.
- * Email dan nomor telepon tidak diperlukan di halaman monitoring.
- */
+/** Data karyawan minimal untuk monitoring (tanpa email/telepon). */
 const toEmployeeSummary = (employee?: EmployeeResponse): AttendanceEmployeeSummary | null =>
   employee
     ? {
@@ -73,15 +70,31 @@ export class AttendanceService {
     });
   }
 
-  /**
-   * Monitoring admin: ambil absensi dari attendance service, lalu tempelkan
-   * nama karyawan dari identity service dalam satu panggilan tambahan.
-   */
+  /** Gabungkan absensi dengan nama karyawan lewat satu panggilan identity. */
   async list(query: ListAttendancesQueryDto): Promise<Paginated<AdminAttendanceResponse>> {
-    const page = await this.send<Paginated<AttendanceResponse>>(
-      MESSAGE_PATTERNS.ATTENDANCE_LIST,
-      query,
-    );
+    const search = query.search?.trim();
+    let matchIds: string[] | undefined;
+
+    if (search) {
+      const matches = await this.employees.list({ page: 1, limit: 100, search });
+      if (matches.data.length === 0) {
+        return {
+          data: [],
+          meta: { page: query.page ?? 1, limit: query.limit ?? 10, total: 0, totalPages: 0 },
+        };
+      }
+      matchIds = matches.data.map((employee) => employee.id);
+    }
+
+    const page = await this.send<Paginated<AttendanceResponse>>(MESSAGE_PATTERNS.ATTENDANCE_LIST, {
+      page: query.page,
+      limit: query.limit,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo,
+      employeeId: matchIds ? undefined : query.employeeId,
+      employeeIds: matchIds,
+      status: query.status,
+    });
 
     const employeeIds = [...new Set(page.data.map((item) => item.employeeId))];
     const employees = await this.employees.findMany(employeeIds);
@@ -96,7 +109,6 @@ export class AttendanceService {
     };
   }
 
-  /** Ringkasan harian untuk kartu dashboard admin. */
   async summary(): Promise<AttendanceSummaryResponse> {
     const [counts, activeEmployees] = await Promise.all([
       this.send<AttendanceDayCountsResponse>(MESSAGE_PATTERNS.ATTENDANCE_SUMMARY, {}),
@@ -110,7 +122,6 @@ export class AttendanceService {
     };
   }
 
-  /** Dipakai endpoint foto untuk memeriksa pemilik sebelum mengirim file. */
   detail(id: string): Promise<AttendanceResponse> {
     return this.send<AttendanceResponse>(MESSAGE_PATTERNS.ATTENDANCE_GET, { id });
   }

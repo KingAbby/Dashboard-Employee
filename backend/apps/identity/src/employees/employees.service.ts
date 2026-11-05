@@ -122,10 +122,13 @@ export class EmployeesService {
       employee.email = email;
     }
 
-    if (dto.employeeCode && dto.employeeCode.trim() !== employee.employeeCode) {
+    if (dto.employeeCode !== undefined) {
       const code = dto.employeeCode.trim();
-      await this.assertCodeAvailable(code, id);
-      employee.employeeCode = code;
+      // Kode kosong dianggap "tidak diubah", sama seperti perilaku create.
+      if (code && code !== employee.employeeCode) {
+        await this.assertCodeAvailable(code, id);
+        employee.employeeCode = code;
+      }
     }
 
     if (dto.fullName !== undefined) employee.fullName = dto.fullName.trim();

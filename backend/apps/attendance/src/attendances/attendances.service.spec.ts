@@ -150,15 +150,29 @@ describe('AttendancesService', () => {
       });
     });
 
+    it('menolak absen pulang sebelum jam pulang', async () => {
+      jest.setSystemTime(new Date('2026-11-04T08:00:00.000Z'));
+      const { repository, mock } = buildRepository();
+      mock.findOne.mockResolvedValue(buildAttendance());
+      const service = new AttendancesService(repository, buildConfig());
+
+      await expect(service.checkOut(payload())).rejects.toMatchObject({
+        error: {
+          statusCode: 400,
+          message: 'Absen pulang baru bisa dilakukan pukul 17:00 WIB.',
+        },
+      });
+    });
+
     it('mengisi check_out_at dan foto pulang', async () => {
-      jest.setSystemTime(new Date('2026-11-04T09:00:00.000Z'));
+      jest.setSystemTime(new Date('2026-11-04T10:00:00.000Z'));
       const { repository, mock } = buildRepository();
       mock.findOne.mockResolvedValue(buildAttendance());
       const service = new AttendancesService(repository, buildConfig());
 
       const result = await service.checkOut({ employeeId: EMPLOYEE_ID, photo: 'foto-pulang.jpg' });
 
-      expect(result.checkOutAt).toBe('2026-11-04T09:00:00.000Z');
+      expect(result.checkOutAt).toBe('2026-11-04T10:00:00.000Z');
       expect(result.checkOutPhoto).toBe('foto-pulang.jpg');
     });
   });
@@ -174,6 +188,7 @@ describe('AttendancesService', () => {
       expect(result.attendance).toBeNull();
       expect(result.date).toBe('2026-11-04');
       expect(result.workStartTime).toBe('09:00');
+      expect(result.workEndTime).toBe('17:00');
     });
   });
 

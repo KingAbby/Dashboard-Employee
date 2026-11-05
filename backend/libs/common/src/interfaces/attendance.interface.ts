@@ -14,11 +14,11 @@ export interface AttendanceResponse {
   updatedAt: string;
 }
 
-/** Status absen hari ini + jam server, dipakai halaman /absen. */
 export interface TodayAttendanceResponse {
   date: string;
   serverTime: string;
   workStartTime: string;
+  workEndTime: string;
   lateToleranceMinutes: number;
   attendance: AttendanceResponse | null;
 }
@@ -40,7 +40,6 @@ export interface AdminAttendanceResponse extends AttendanceResponse {
   employee: AttendanceEmployeeSummary | null;
 }
 
-/** Hitungan satu hari dari attendance service. */
 export interface AttendanceDayCountsResponse {
   date: string;
   present: number;
@@ -49,7 +48,6 @@ export interface AttendanceDayCountsResponse {
   checkedOut: number;
 }
 
-/** Ringkasan untuk dashboard admin: hitungan absensi + jumlah karyawan aktif. */
 export interface AttendanceSummaryResponse extends AttendanceDayCountsResponse {
   totalActiveEmployees: number;
   notCheckedIn: number;

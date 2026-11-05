@@ -98,52 +98,71 @@ const writeSamplePhoto = async (
   return fileName;
 };
 
-const seedIdentity = async (): Promise<void> => {
+const seedIdentity = async (): Promise<{ id: string; isAdmin: boolean }[]> => {
   await identityDataSource.initialize();
   const employees = identityDataSource.getRepository(Employee);
+  const seeded: { id: string; isAdmin: boolean }[] = [];
 
   try {
     for (const seed of SEED_EMPLOYEES) {
-      const existing = await employees.findOne({ where: { email: seed.email } });
+      // Cocokkan lewat email, id, ATAU kode. Row yang id/kodenya sama tapi
+      // emailnya berbeda berarti data sudah diedit admin — jangan ditimpa.
+      const existing = await employees.findOne({
+        where: [{ email: seed.email }, { id: seed.id }, { employeeCode: seed.employeeCode }],
+      });
+
       if (existing) {
-        logger.log(`Lewati ${seed.email} (sudah ada).`);
+        if (existing.email === seed.email) {
+          logger.log(`Lewati ${seed.email} (sudah ada).`);
+          seeded.push({ id: existing.id, isAdmin: seed.role === Role.ADMIN_HRD });
+        } else {
+          logger.warn(
+            `Lewati ${seed.email}: id/kode seed sudah dipakai ${existing.email}. Data itu tidak diubah.`,
+          );
+        }
         continue;
       }
 
-      await employees.save(
-        employees.create({
-          id: seed.id,
-          employeeCode: seed.employeeCode,
-          fullName: seed.fullName,
-          email: seed.email,
-          passwordHash: await hashPassword(seed.password),
-          role: seed.role,
-          position: seed.position,
-          department: seed.department,
-          phone: seed.phone,
-          joinDate: seed.joinDate,
-          isActive: true,
-        }),
-      );
+      // insert (bukan save) supaya tidak mungkin menimpa row lain lewat primary key.
+      await employees.insert({
+        id: seed.id,
+        employeeCode: seed.employeeCode,
+        fullName: seed.fullName,
+        email: seed.email,
+        passwordHash: await hashPassword(seed.password),
+        role: seed.role,
+        position: seed.position,
+        department: seed.department,
+        phone: seed.phone,
+        joinDate: seed.joinDate,
+        isActive: true,
+      });
       logger.log(`Karyawan dibuat: ${seed.employeeCode} ${seed.fullName}`);
+      seeded.push({ id: seed.id, isAdmin: seed.role === Role.ADMIN_HRD });
     }
   } finally {
     await identityDataSource.destroy();
   }
+
+  return seeded;
 };
 
-const seedAttendance = async (): Promise<void> => {
+const seedAttendance = async (employeeIds: string[]): Promise<void> => {
+  if (employeeIds.length === 0) {
+    logger.log('Tidak ada karyawan seed yang cocok, absensi contoh dilewati.');
+    return;
+  }
+
   await attendanceDataSource.initialize();
   const attendances = attendanceDataSource.getRepository(Attendance);
 
   try {
     const days = workingDays();
-    const employees = SEED_EMPLOYEES.filter((employee) => employee.role === Role.EMPLOYEE);
 
-    for (const [employeeIndex, employee] of employees.entries()) {
+    for (const [employeeIndex, employeeId] of employeeIds.entries()) {
       for (const [dayIndex, attendanceDate] of days.entries()) {
         const existing = await attendances.findOne({
-          where: { employeeId: employee.id, attendanceDate },
+          where: { employeeId, attendanceDate },
         });
         if (existing) continue;
 
@@ -166,7 +185,7 @@ const seedAttendance = async (): Promise<void> => {
         await attendances.save(
           attendances.create({
             id: crypto.randomUUID(),
-            employeeId: employee.id,
+            employeeId,
             attendanceDate,
             checkInAt,
             checkInPhoto: await writeSamplePhoto(attendanceDate, status),
@@ -186,8 +205,10 @@ const seedAttendance = async (): Promise<void> => {
 };
 
 const run = async (): Promise<void> => {
-  await seedIdentity();
-  await seedAttendance();
+  const seeded = await seedIdentity();
+  await seedAttendance(
+    seeded.filter((employee) => !employee.isAdmin).map((employee) => employee.id),
+  );
   logger.log('Seed selesai.');
 };
 

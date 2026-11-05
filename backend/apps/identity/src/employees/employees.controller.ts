@@ -1,11 +1,11 @@
 import {
+  CreateEmployeePayload,
+  DeactivateEmployeePayload,
+  GetEmployeePayload,
+  IdsPayload,
+  ListEmployeesQueryDto,
   MESSAGE_PATTERNS,
-  type CreateEmployeePayload,
-  type DeactivateEmployeePayload,
-  type GetEmployeePayload,
-  type IdsPayload,
-  type ListEmployeesQueryDto,
-  type UpdateEmployeePayload,
+  UpdateEmployeePayload,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';

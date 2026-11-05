@@ -7,7 +7,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { PhotoCapture } from '../../components/ui/PhotoCapture';
 import { Textarea } from '../../components/ui/Textarea';
 import { useToast } from '../../components/ui/useToast';
-import { ClockIcon, HistoryIcon, RefreshIcon } from '../../components/ui/icons';
+import { ClockIcon, HistoryIcon, LockIcon, RefreshIcon } from '../../components/ui/icons';
 import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatusBadge';
 import {
   useCheckIn,
@@ -31,6 +31,9 @@ export function AbsenPage() {
 
   const serverNow = useServerClock(todayQuery.data?.serverTime);
   const attendance = todayQuery.data?.attendance ?? null;
+  const workEndTime = todayQuery.data?.workEndTime ?? '17:00';
+  const nowTime = formatTime(serverNow.toISOString());
+  const checkOutLocked = Boolean(attendance && !attendance.checkOutAt && nowTime < workEndTime);
 
   const [photo, setPhoto] = useState<File | null>(null);
   const [note, setNote] = useState('');
@@ -146,6 +149,20 @@ export function AbsenPage() {
                   </p>
                 </div>
               </div>
+            ) : checkOutLocked ? (
+              <div className="flex items-center gap-2.5 rounded-card border border-line bg-bg/60 px-3.5 py-3">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-muted text-muted">
+                  <LockIcon size={15} />
+                </span>
+                <div>
+                  <p className="text-[12.5px] font-semibold text-ink">Absen pulang belum dibuka</p>
+                  <p className="text-[11.5px] text-muted">
+                    Tersedia mulai pukul{' '}
+                    <span className="font-semibold tabular-nums text-ink">{workEndTime}</span> WIB.
+                    Sekarang {nowTime} WIB.
+                  </p>
+                </div>
+              </div>
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -183,7 +200,7 @@ export function AbsenPage() {
                 <Button
                   fullWidth
                   loading={submitting}
-                  disabled={!photo}
+                  disabled={!photo || checkOutLocked}
                   onClick={() => void submit(attendance ? 'out' : 'in')}
                   icon={<ClockIcon size={13} />}
                 >
@@ -213,12 +230,19 @@ export function AbsenPage() {
           <ul className="mt-4 space-y-3">
             {[
               `Jam masuk ${todayQuery.data?.workStartTime ?? '09:00'} WIB — lewat dari itu tercatat terlambat.`,
+              `Absen pulang dibuka pukul ${workEndTime} WIB.`,
               'Foto bukti wajib untuk absen masuk dan pulang.',
               'Satu absen masuk dan satu absen pulang per hari.',
               'Waktu diambil dari server, bukan dari perangkatmu.',
             ].map((rule) => (
-              <li key={rule} className="flex items-start gap-2 text-[12px] leading-relaxed text-muted">
-                <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+              <li
+                key={rule}
+                className="flex items-start gap-2 text-[12px] leading-relaxed text-muted"
+              >
+                <span
+                  className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-primary"
+                  aria-hidden="true"
+                />
                 {rule}
               </li>
             ))}

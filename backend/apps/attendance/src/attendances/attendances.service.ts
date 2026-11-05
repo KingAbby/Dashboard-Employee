@@ -32,7 +32,6 @@ export class AttendancesService {
     private readonly config: ConfigService,
   ) {}
 
-  /** Absen masuk: waktu dari server, satu record per karyawan per hari. */
   async checkIn(payload: CheckInPayloadDto): Promise<AttendanceResponse> {
     const now = new Date();
     const zoned = toZonedParts(now, this.timezone);
@@ -74,6 +73,11 @@ export class AttendancesService {
     if (attendance.checkOutAt) {
       throw AppRpcException.conflict(ERROR_MESSAGES.ATTENDANCE_ALREADY_CHECKED_OUT);
     }
+    if (zoned.minutes < this.workEndMinutes) {
+      throw AppRpcException.badRequest(
+        `Absen pulang baru bisa dilakukan pukul ${this.workEndTime} WIB.`,
+      );
+    }
 
     attendance.checkOutAt = now;
     attendance.checkOutPhoto = payload.photo;
@@ -82,7 +86,6 @@ export class AttendancesService {
     return toAttendanceResponse(await this.attendances.save(attendance));
   }
 
-  /** Status hari ini + jam server, dipakai halaman /absen. */
   async today(employeeId: string): Promise<TodayAttendanceResponse> {
     const now = new Date();
     const zoned = toZonedParts(now, this.timezone);
@@ -95,6 +98,7 @@ export class AttendancesService {
       date: zoned.date,
       serverTime: now.toISOString(),
       workStartTime: this.workStartTime,
+      workEndTime: this.workEndTime,
       lateToleranceMinutes: this.lateToleranceMinutes,
       attendance: attendance ? toAttendanceResponse(attendance) : null,
     };
@@ -123,7 +127,6 @@ export class AttendancesService {
     return buildPaginated(rows.map(toAttendanceResponse), page, limit, total);
   }
 
-  /** Dipakai gateway untuk memeriksa pemilik sebelum mengirim file foto. */
   async findOne(id: string): Promise<AttendanceResponse> {
     const attendance = await this.attendances.findOne({ where: { id } });
     if (!attendance) throw AppRpcException.notFound(ERROR_MESSAGES.ATTENDANCE_NOT_FOUND);
@@ -146,7 +149,11 @@ export class AttendancesService {
     if (query.dateTo) {
       qb.andWhere('attendance.attendance_date <= :dateTo', { dateTo: query.dateTo });
     }
-    if (query.employeeId) {
+    if (query.employeeIds?.length) {
+      qb.andWhere('attendance.employee_id IN (:...employeeIds)', {
+        employeeIds: query.employeeIds,
+      });
+    } else if (query.employeeId) {
       qb.andWhere('attendance.employee_id = :employeeId', { employeeId: query.employeeId });
     }
     if (query.status) {
@@ -162,7 +169,6 @@ export class AttendancesService {
     return buildPaginated(rows.map(toAttendanceResponse), page, limit, total);
   }
 
-  /** Hitungan hari ini untuk kartu ringkasan dashboard admin. */
   async summary(): Promise<AttendanceDayCountsResponse> {
     const date = toZonedParts(new Date(), this.timezone).date;
 
@@ -189,6 +195,14 @@ export class AttendancesService {
 
   private get workStartMinutes(): number {
     return parseTimeToMinutes(this.workStartTime);
+  }
+
+  private get workEndTime(): string {
+    return this.config.get<string>('WORK_END_TIME', '17:00');
+  }
+
+  private get workEndMinutes(): number {
+    return parseTimeToMinutes(this.workEndTime);
   }
 
   private get lateToleranceMinutes(): number {

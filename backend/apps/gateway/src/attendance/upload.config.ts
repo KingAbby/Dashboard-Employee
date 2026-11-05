@@ -1,8 +1,4 @@
-import {
-  DEFAULT_TIMEZONE,
-  ERROR_MESSAGES,
-  toZonedParts,
-} from '@app/common';
+import { DEFAULT_TIMEZONE, ERROR_MESSAGES, toZonedParts } from '@app/common';
 import { BadRequestException } from '@nestjs/common';
 import type { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage } from 'multer';
@@ -10,10 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { ALLOWED_PHOTO_MIME, ensureAttendancePhotoDirectory } from './photo-storage';
 
-/**
- * Foto absensi: nama file selalu diganti UUID (nama dari klien diabaikan),
- * disimpan per bulan, dan hanya format gambar yang diterima.
- */
+/** Nama file diganti UUID dan hanya format gambar yang diterima. */
 export const createAttendanceUploadOptions = (
   uploadDir: string,
   maxSizeMb: number,

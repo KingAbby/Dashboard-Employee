@@ -9,9 +9,7 @@ export interface AttendancePhotoProps {
   type: AttendancePhotoType;
   alt: string;
   className?: string;
-  /** Teks yang tampil kalau foto untuk tipe ini memang tidak ada. */
   missingLabel?: string;
-  /** Status kosong: tidak perlu memanggil endpoint. */
   hasPhoto?: boolean;
 }
 
@@ -20,11 +18,7 @@ const LABEL_FALLBACK: Record<AttendancePhotoType, string> = {
   out: 'Foto absen pulang',
 };
 
-/**
- * Foto absensi tidak publik, jadi diambil sebagai blob memakai header
- * Authorization lalu ditampilkan lewat object URL. Satu komponen dipakai
- * modal admin maupun halaman riwayat karyawan.
- */
+/** Foto tidak publik: diambil sebagai blob ber-Bearer untuk admin dan riwayat. */
 export function AttendancePhoto({
   attendanceId,
   type,

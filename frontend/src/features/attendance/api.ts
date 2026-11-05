@@ -20,13 +20,13 @@ export const attendanceKeys = {
   summary: [ATTENDANCE_KEY, 'summary'] as const,
 };
 
-/** Buang parameter kosong supaya query string tetap bersih. */
 const toParams = (query: AttendanceAdminQuery) => ({
   page: query.page,
   limit: query.limit,
   ...(query.dateFrom ? { dateFrom: query.dateFrom } : {}),
   ...(query.dateTo ? { dateTo: query.dateTo } : {}),
   ...(query.employeeId ? { employeeId: query.employeeId } : {}),
+  ...(query.search ? { search: query.search } : {}),
   ...(query.status ? { status: query.status } : {}),
 });
 
@@ -50,7 +50,6 @@ export const useMyAttendances = (query: AttendanceQuery) =>
     placeholderData: (previous) => previous,
   });
 
-/** Monitoring admin: seluruh absensi, sudah lengkap dengan nama karyawan. */
 export const useAdminAttendances = (query: AttendanceAdminQuery) =>
   useQuery({
     queryKey: attendanceKeys.admin(query),
@@ -88,7 +87,6 @@ const useAttendanceMutation = (path: 'check-in' | 'check-out') => {
 export const useCheckIn = () => useAttendanceMutation('check-in');
 export const useCheckOut = () => useAttendanceMutation('check-out');
 
-/** Ambil foto sebagai blob (endpoint tidak publik) lalu jadikan object URL. */
 export const fetchAttendancePhoto = async (
   attendanceId: string,
   type: AttendancePhotoType,

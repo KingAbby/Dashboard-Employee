@@ -1,7 +1,4 @@
-/**
- * Nama pattern pesan TCP. Dipakai gateway (client) dan service (handler)
- * supaya string tidak ditulis berulang di banyak file.
- */
+/** Pattern TCP dipakai gateway & service agar string tidak tersebar. */
 export const MESSAGE_PATTERNS = {
   PING: 'ping',
 
