@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/useAuth';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 
@@ -9,12 +10,20 @@ export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   if (!user) return null;
 
   const handleLogout = () => {
+    setLogoutOpen(false);
+    setMobileOpen(false);
     logout();
     navigate('/login', { replace: true });
+  };
+
+  const requestLogout = () => {
+    setMobileOpen(false);
+    setLogoutOpen(true);
   };
 
   return (
@@ -25,7 +34,7 @@ export function AppLayout() {
           fullName={user.fullName}
           email={user.email}
           activePath={location.pathname}
-          onLogout={handleLogout}
+          onLogout={requestLogout}
         />
       </div>
 
@@ -43,7 +52,7 @@ export function AppLayout() {
               fullName={user.fullName}
               email={user.email}
               activePath={location.pathname}
-              onLogout={handleLogout}
+              onLogout={requestLogout}
               onNavigate={() => setMobileOpen(false)}
             />
           </div>
@@ -56,6 +65,16 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
+
+      <ConfirmDialog
+        open={logoutOpen}
+        title="Keluar dari akun?"
+        description="Sesi kamu akan diakhiri dan kamu perlu login lagi untuk membuka portal."
+        confirmLabel="Ya, keluar"
+        cancelLabel="Batal"
+        onConfirm={handleLogout}
+        onClose={() => setLogoutOpen(false)}
+      />
     </div>
   );
 }

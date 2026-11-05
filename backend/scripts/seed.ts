@@ -66,7 +66,7 @@ const jakartaToday = (): string =>
     day: '2-digit',
   }).format(new Date());
 
-/** Rentang 7 hari kalender terakhir; akhir pekan dilewati. */
+/** Rentang 7 hari kalender terakhir, akhir pekan dilewati. */
 const workingDays = (): string[] => {
   const [year, month, day] = jakartaToday().split('-').map(Number);
   const todayUtc = Date.UTC(year, month - 1, day);

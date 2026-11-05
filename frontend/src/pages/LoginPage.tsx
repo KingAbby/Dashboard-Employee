@@ -27,30 +27,6 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const HIGHLIGHTS = [
-  {
-    index: '01',
-    title: 'Foto bukti, bukan sekadar centang',
-    body: 'Setiap absen masuk menyertakan foto dan waktu dari server, jadi tidak bisa diakali dari perangkat.',
-  },
-  {
-    index: '02',
-    title: 'Satu catatan per hari',
-    body: 'Absen ganda ditolak. Status tepat waktu atau terlambat dihitung otomatis dari jam masuk.',
-  },
-  {
-    index: '03',
-    title: 'HRD memantau tanpa mengubah',
-    body: 'Admin HRD melihat seluruh absensi beserta fotonya, tetapi tidak bisa mengedit riwayat karyawan.',
-  },
-];
-
-const FACTS = [
-  { label: 'Zona waktu', value: 'WIB · Asia/Jakarta' },
-  { label: 'Bukti absen', value: 'Foto wajib' },
-  { label: 'Pencatatan', value: 'Waktu dari server' },
-];
-
 const DEMO_ACCOUNTS = [
   { label: 'Admin HRD', email: 'admin@example.com', password: 'Admin123!' },
   { label: 'Karyawan', email: 'budi@example.com', password: 'Employee123!' },
@@ -109,61 +85,55 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.08fr_1fr]">
-      <section className="relative hidden flex-col border-r border-line bg-surface px-12 py-10 lg:flex">
-        <BrandMark />
+      <section className="relative hidden flex-col overflow-hidden border-r border-line bg-surface px-12 py-10 lg:flex">
+        {/* Latar dekoratif: grid halus, glow, dan mark samar. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(10,43,76,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,43,76,0.05) 1px, transparent 1px)',
+            backgroundSize: '44px 44px',
+            maskImage: 'radial-gradient(ellipse at 32% 38%, black 15%, transparent 72%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at 32% 38%, black 15%, transparent 72%)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-28 -top-32 h-[420px] w-[420px] rounded-full bg-primary-soft/60 blur-3xl"
+        />
+        <img
+          src={BRAND.mark}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-16 -right-10 h-[340px] w-auto opacity-[0.045]"
+        />
 
-        <div className="flex flex-1 flex-col justify-center py-10">
-          <div className="w-full max-w-[520px]">
-            <p className="label-caps flex items-center gap-2 text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-              Kehadiran tanpa kertas
-            </p>
+        <div className="relative">
+          <BrandMark />
+        </div>
 
-            <h1 className="mt-4 text-[40px] font-extrabold leading-[1.06] tracking-[-0.035em] text-ink">
-              Absensi WFH yang{' '}
-              <span className="whitespace-nowrap rounded-[4px] bg-primary-soft px-2 py-1 text-primary">
-                tercatat rapi
-              </span>
-              , <span className="whitespace-nowrap">bukan tebak-tebakan</span>.
+        <div className="relative flex flex-1 flex-col justify-center py-10">
+          <div className="max-w-[460px]">
+            <span className="block h-px w-10 bg-primary/40" aria-hidden="true" />
+
+            <h1 className="mt-6 text-[44px] font-extrabold leading-[1.04] tracking-[-0.04em] text-ink">
+              Kehadiran yang <br />
+              <span className="text-primary">tercatat rapi.</span>
             </h1>
 
-            <p className="mt-5 text-[13.5px] leading-relaxed text-muted">
-              Satu portal untuk dua peran: karyawan absen dengan foto bukti, admin HRD memantau
-              kehadiran harian dari satu tabel yang sama.
+            <p className="mt-5 max-w-[400px] text-[13.5px] leading-relaxed text-muted">
+              Absen masuk dan pulang dalam satu portal.
             </p>
-
-            <ul className="mt-9 border-b border-line">
-              {HIGHLIGHTS.map((item) => (
-                <li key={item.index} className="border-t border-line py-4">
-                  <div className="flex items-baseline gap-3">
-                    <span className="label-caps text-[9.5px] text-subtle">{item.index}</span>
-                    <div>
-                      <p className="text-[13px] font-semibold text-ink">{item.title}</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-muted">{item.body}</p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 
-        <div className="space-y-5">
-          <dl className="grid grid-cols-3 gap-4 border-t border-line pt-5">
-            {FACTS.map((fact) => (
-              <div key={fact.label}>
-                <dt className="label-caps text-[9px] text-subtle">{fact.label}</dt>
-                <dd className="mt-1 text-[12px] font-semibold text-ink">{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="text-[11px] text-subtle">
-            Hanya untuk karyawan terdaftar. Akun dibuat oleh admin HRD.
-          </p>
-        </div>
+        <p className="relative text-[11px] text-muted">
+          Akses khusus karyawan terdaftar. Akun dibuat oleh admin HRD.
+        </p>
       </section>
 
-      <section className="flex items-center justify-center px-5 py-12 sm:px-10">
+      <section className="flex items-start justify-center px-5 py-10 sm:px-10 lg:items-center lg:py-12">
         <div className="w-full max-w-[400px]">
           <div className="mb-8 lg:hidden">
             <BrandMark />

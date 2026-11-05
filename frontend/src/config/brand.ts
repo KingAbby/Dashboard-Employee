@@ -3,6 +3,7 @@ export const BRAND = {
   name: 'DexaHR',
   tagline: 'Portal Kehadiran',
   logo: '/dexahr-logo.png',
+  mark: '/dexahr-mark.png',
 } as const;
 
 export const ROLE_LABEL: Record<'EMPLOYEE' | 'ADMIN_HRD', string> = {

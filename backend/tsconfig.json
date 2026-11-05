@@ -31,16 +31,6 @@
       ]
     }
   },
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/gateway/tsconfig.app.json"
-    },
-    {
-      "path": "./apps/identity/tsconfig.app.json"
-    },
-    {
-      "path": "./apps/attendance/tsconfig.app.json"
-    }
-  ]
+  "include": ["apps/**/*.ts", "libs/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
