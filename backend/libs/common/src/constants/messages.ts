@@ -12,6 +12,7 @@ export const ERROR_MESSAGES = {
   EMPLOYEE_EMAIL_TAKEN: 'Email sudah dipakai karyawan lain.',
   EMPLOYEE_CODE_TAKEN: 'Kode karyawan sudah dipakai.',
   EMPLOYEE_CANNOT_DEACTIVATE_SELF: 'Anda tidak bisa menonaktifkan akun sendiri.',
+  EMPLOYEE_CANNOT_CHANGE_OWN_ROLE: 'Role akun sendiri tidak bisa diubah.',
   EMPLOYEE_ALREADY_INACTIVE: 'Karyawan ini sudah nonaktif.',
 
   ATTENDANCE_NOT_FOUND: 'Data absensi tidak ditemukan.',

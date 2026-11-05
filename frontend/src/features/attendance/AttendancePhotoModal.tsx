@@ -10,7 +10,6 @@ export interface AttendancePhotoModalProps {
   onClose: () => void;
 }
 
-/** Pratinjau foto masuk/pulang; read-only untuk admin. */
 export function AttendancePhotoModal({ attendance, onClose }: AttendancePhotoModalProps) {
   const employeeName = attendance?.employee?.fullName ?? 'Karyawan tidak dikenal';
 
@@ -66,11 +65,6 @@ export function AttendancePhotoModal({ attendance, onClose }: AttendancePhotoMod
               />
             </figure>
           </div>
-
-          {/* <p className="text-[11px] text-subtle">
-            Foto diambil dari endpoint terautentikasi dan hanya bisa dibuka pemilik absensi atau
-            admin HRD. Data absensi tidak bisa diubah dari halaman ini.
-          </p> */}
         </div>
       ) : null}
     </Modal>

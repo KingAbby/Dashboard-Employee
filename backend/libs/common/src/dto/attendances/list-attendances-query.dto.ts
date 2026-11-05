@@ -12,7 +12,6 @@ import {
 import { AttendanceStatus } from '../../enums/attendance-status.enum';
 import { PaginationQueryDto } from '../pagination-query.dto';
 
-/** Filter opsional: admin bisa melihat semua absensi tanpa mengisi apa pun. */
 export class ListAttendancesQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsDateString({ strict: true }, { message: 'Tanggal mulai tidak valid.' })

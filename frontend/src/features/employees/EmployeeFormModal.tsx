@@ -9,6 +9,7 @@ import { Select } from '../../components/ui/Select';
 import { AlertIcon } from '../../components/ui/icons';
 import { DEPARTMENTS } from '../../config/departments';
 import { useToast } from '../../components/ui/useToast';
+import { useAuth } from '../auth/useAuth';
 import { toErrorMessage } from '../../lib/api';
 import type { Employee, EmployeePayload } from '../../types/api';
 import { useCreateEmployee, useNextEmployeeCode, useUpdateEmployee } from './api';
@@ -92,6 +93,8 @@ interface EmployeeFormProps {
 function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
   const isEdit = Boolean(employee);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isSelf = employee?.id === user?.id;
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee();
   const nextCode = useNextEmployeeCode(!isEdit);
@@ -166,9 +169,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             value={employee?.employeeCode ?? nextCode.data?.employeeCode ?? ''}
             placeholder={nextCode.isLoading ? 'Membuat kode…' : 'Otomatis saat disimpan'}
             hint={
-              employee
-                ? 'Note: Kode tidak bisa diubah.'
-                : 'Note: Generate otomatis oleh sistem.'
+              employee ? 'Note: Kode tidak bisa diubah.' : 'Note: Generate otomatis oleh sistem.'
             }
             readOnly
             disabled
@@ -179,13 +180,24 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             type="password"
             required={!isEdit}
             placeholder={isEdit ? 'Kosongkan bila tidak diubah' : 'Buat password awal'}
-            hint={isEdit ? 'Note: Isi hanya bila ingin mengganti password.' : 'Note: Minimal 8 karakter.'}
+            hint={
+              isEdit
+                ? 'Note: Isi hanya bila ingin mengganti password.'
+                : 'Note: Minimal 8 karakter.'
+            }
             className="sm:col-span-2"
             error={errors.password?.message}
             {...register('password')}
           />
 
-          <Select label="Role" required error={errors.role?.message} {...register('role')}>
+          <Select
+            label="Role"
+            required
+            disabled={isSelf}
+            hint={isSelf ? 'Role akun sendiri tidak bisa diubah.' : undefined}
+            error={errors.role?.message}
+            {...register('role')}
+          >
             <option value="EMPLOYEE">Karyawan</option>
             <option value="ADMIN_HRD">Admin HRD</option>
           </Select>

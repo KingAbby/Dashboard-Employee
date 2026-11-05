@@ -14,7 +14,6 @@ import {
 import { DEPARTMENTS } from '../../constants/departments';
 import { Role } from '../../enums/role.enum';
 
-/** Semua field opsional: PATCH hanya mengubah yang dikirim. */
 export class UpdateEmployeeDto {
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))

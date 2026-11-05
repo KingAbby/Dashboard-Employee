@@ -134,6 +134,9 @@ export class EmployeesService {
     if (dto.isActive === false && actorId === id) {
       throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_DEACTIVATE_SELF);
     }
+    if (dto.role !== undefined && dto.role !== employee.role && actorId === id) {
+      throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_CHANGE_OWN_ROLE);
+    }
 
     if (dto.email && dto.email.trim().toLowerCase() !== employee.email) {
       const email = dto.email.trim().toLowerCase();
@@ -172,7 +175,6 @@ export class EmployeesService {
     return toEmployeeResponse(saved);
   }
 
-  /** Soft delete: baris tetap ada karena riwayat absensi harus bisa ditelusuri. */
   async deactivate(id: string, actorId?: string): Promise<EmployeeResponse> {
     if (actorId === id) {
       throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_DEACTIVATE_SELF);
@@ -210,7 +212,6 @@ export class EmployeesService {
     return this.generateEmployeeCode().then((employeeCode) => ({ employeeCode }));
   }
 
-  /** EMP-0001, EMP-0002, ... Melewati nomor yang sudah terpakai. */
   private async generateEmployeeCode(startAt = 1): Promise<string> {
     for (let attempt = startAt; attempt <= 9999; attempt += 1) {
       const code = `EMP-${String(attempt).padStart(4, '0')}`;

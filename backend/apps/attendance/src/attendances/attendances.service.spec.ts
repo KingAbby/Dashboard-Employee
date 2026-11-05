@@ -113,6 +113,23 @@ describe('AttendancesService', () => {
       );
     });
 
+    it('mengubah bentrok unique menjadi 409, bukan 500', async () => {
+      jest.setSystemTime(new Date('2026-11-04T01:30:00.000Z'));
+      const { repository, mock } = buildRepository();
+      mock.save.mockRejectedValueOnce({
+        driverError: {
+          code: 'ER_DUP_ENTRY',
+          message:
+            "Duplicate entry '22222222-2222-4222-8222-222222222222-2026-11-04' for key 'attendances.uq_attendances_employee_date'",
+        },
+      });
+      const service = new AttendancesService(repository, buildConfig());
+
+      await expect(service.checkIn(payload())).rejects.toMatchObject({
+        error: { statusCode: 409, message: ERROR_MESSAGES.ATTENDANCE_ALREADY_CHECKED_IN },
+      });
+    });
+
     it('menolak absen kedua pada hari yang sama', async () => {
       jest.setSystemTime(new Date('2026-11-04T01:30:00.000Z'));
       const { repository, mock } = buildRepository();
@@ -193,6 +210,17 @@ describe('AttendancesService', () => {
   });
 
   describe('listAll', () => {
+    it('menolak rentang tanggal yang terbalik', async () => {
+      const { repository } = buildRepository();
+      const service = new AttendancesService(repository, buildConfig());
+
+      await expect(
+        service.listAll({ page: 1, limit: 10, dateFrom: '2026-11-05', dateTo: '2026-11-01' }),
+      ).rejects.toMatchObject({
+        error: { statusCode: 400, message: 'Tanggal mulai tidak boleh setelah tanggal akhir.' },
+      });
+    });
+
     it('meneruskan filter tanggal, karyawan, dan status ke query', async () => {
       const qb = buildQueryBuilder([buildAttendance()], 11);
       const { repository } = buildRepository(qb);

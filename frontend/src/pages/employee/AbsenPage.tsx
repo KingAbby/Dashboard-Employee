@@ -255,6 +255,10 @@ export function AbsenPage() {
                 <div className="h-3 w-3/4 animate-pulse rounded bg-black/[0.06]" />
                 <div className="h-3 w-2/3 animate-pulse rounded bg-black/[0.06]" />
               </div>
+            ) : recentQuery.isError ? (
+              <p className="mt-2 text-[12px] text-danger">
+                Riwayat singkat gagal dimuat. Coba muat ulang.
+              </p>
             ) : (recentQuery.data?.data.length ?? 0) === 0 ? (
               <p className="mt-2 text-[12px] text-muted">Belum ada absensi tercatat.</p>
             ) : (

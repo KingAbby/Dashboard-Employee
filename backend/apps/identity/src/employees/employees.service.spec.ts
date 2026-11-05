@@ -69,6 +69,21 @@ describe('EmployeesService', () => {
     });
   });
 
+  describe('update', () => {
+    it('menolak admin mengubah role akunnya sendiri', async () => {
+      const repository = buildRepository();
+      const admin = buildEmployee({ role: Role.ADMIN_HRD });
+      repository.findOne.mockResolvedValue(admin);
+      const service = new EmployeesService(repository);
+
+      await expect(
+        service.update(admin.id, { role: Role.EMPLOYEE }, admin.id),
+      ).rejects.toMatchObject({
+        error: { statusCode: 409, message: ERROR_MESSAGES.EMPLOYEE_CANNOT_CHANGE_OWN_ROLE },
+      });
+    });
+  });
+
   describe('create', () => {
     it('menolak email yang sudah dipakai', async () => {
       const repository = buildRepository();

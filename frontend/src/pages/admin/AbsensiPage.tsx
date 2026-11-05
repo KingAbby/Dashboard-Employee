@@ -45,7 +45,10 @@ export function AbsensiPage() {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 350);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -89,12 +92,7 @@ export function AbsensiPage() {
     {
       header: 'Masuk',
       cell: (row) => (
-        <div>
-          <p className="tabular-nums text-[12.5px] text-ink">{formatTime(row.checkInAt)}</p>
-          {row.note ? (
-            <p className="mt-0.5 max-w-[180px] truncate text-[11px] text-subtle">{row.note}</p>
-          ) : null}
-        </div>
+        <p className="tabular-nums text-[12.5px] text-ink">{formatTime(row.checkInAt)}</p>
       ),
     },
     {
@@ -191,10 +189,7 @@ export function AbsensiPage() {
                 ) : undefined
               }
               value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
+              onChange={(event) => setSearch(event.target.value)}
             />
             <Select
               label="Status"

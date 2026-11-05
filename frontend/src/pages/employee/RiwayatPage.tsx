@@ -35,23 +35,13 @@ export function RiwayatPage() {
     {
       header: 'Tanggal',
       cell: (row) => (
-        <div>
-          <p className="text-[12.5px] font-semibold text-ink">{formatDate(row.attendanceDate)}</p>
-          <p className="mt-0.5 hidden text-[10.5px] uppercase tracking-[0.06em] text-subtle sm:block">
-            {row.attendanceDate}
-          </p>
-        </div>
+        <p className="text-[12.5px] font-semibold text-ink">{formatDate(row.attendanceDate)}</p>
       ),
     },
     {
       header: 'Masuk',
       cell: (row) => (
-        <div>
-          <p className="tabular-nums text-[12.5px] text-ink">{formatTime(row.checkInAt)}</p>
-          {row.note ? (
-            <p className="mt-0.5 max-w-[180px] truncate text-[11px] text-subtle">{row.note}</p>
-          ) : null}
-        </div>
+        <p className="tabular-nums text-[12.5px] text-ink">{formatTime(row.checkInAt)}</p>
       ),
     },
     {

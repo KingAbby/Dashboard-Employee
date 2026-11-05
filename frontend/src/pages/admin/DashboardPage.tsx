@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DataTable, type Column } from '../../components/ui/DataTable';
@@ -17,7 +16,7 @@ import { AttendanceStatusBadge } from '../../features/attendance/AttendanceStatu
 import { useAdminAttendances, useAttendanceSummary } from '../../features/attendance/api';
 import { toErrorMessage } from '../../lib/api';
 import { useMinimumLoading } from '../../lib/use-min-loading';
-import { formatClock, formatDate, formatTime, todayISODate } from '../../lib/format';
+import { formatClock, formatTime, todayISODate } from '../../lib/format';
 import type { AdminAttendance } from '../../types/api';
 
 const RECENT_LIMIT = 5;
@@ -100,7 +99,6 @@ export function DashboardPage() {
                 'Belum diperbarui'
               )}
             </span>
-            <Badge tone="primary">{formatDate(today)}</Badge>
             <Button
               variant="secondary"
               size="sm"

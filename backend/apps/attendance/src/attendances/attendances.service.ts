@@ -45,17 +45,25 @@ export class AttendancesService {
 
     const late = isLateCheckIn(zoned.minutes, this.workStartMinutes, this.lateToleranceMinutes);
 
-    const saved = await this.attendances.save(
-      this.attendances.create({
-        id: randomUUID(),
-        employeeId: payload.employeeId,
-        attendanceDate: zoned.date,
-        checkInAt: now,
-        checkInPhoto: payload.photo,
-        status: late ? AttendanceStatus.LATE : AttendanceStatus.ON_TIME,
-        note: payload.note ?? null,
-      }),
-    );
+    let saved: Attendance;
+    try {
+      saved = await this.attendances.save(
+        this.attendances.create({
+          id: randomUUID(),
+          employeeId: payload.employeeId,
+          attendanceDate: zoned.date,
+          checkInAt: now,
+          checkInPhoto: payload.photo,
+          status: late ? AttendanceStatus.LATE : AttendanceStatus.ON_TIME,
+          note: payload.note?.trim() || null,
+        }),
+      );
+    } catch (error) {
+      if (this.isDuplicateAttendance(error)) {
+        throw AppRpcException.conflict(ERROR_MESSAGES.ATTENDANCE_ALREADY_CHECKED_IN);
+      }
+      throw error;
+    }
 
     return toAttendanceResponse(saved);
   }
@@ -81,7 +89,7 @@ export class AttendancesService {
 
     attendance.checkOutAt = now;
     attendance.checkOutPhoto = payload.photo;
-    if (payload.note) attendance.note = payload.note;
+    if (payload.note?.trim()) attendance.note = payload.note.trim();
 
     return toAttendanceResponse(await this.attendances.save(attendance));
   }
@@ -105,6 +113,8 @@ export class AttendancesService {
   }
 
   async listMine(query: MyAttendancesQueryDto): Promise<Paginated<AttendanceResponse>> {
+    this.assertDateRange(query.dateFrom, query.dateTo);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
 
@@ -138,6 +148,8 @@ export class AttendancesService {
    * Nama karyawan tidak disimpan di sini; gateway yang menggabungkannya.
    */
   async listAll(query: ListAttendancesQueryDto): Promise<Paginated<AttendanceResponse>> {
+    this.assertDateRange(query.dateFrom, query.dateTo);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
 
@@ -183,6 +195,20 @@ export class AttendancesService {
     ]);
 
     return { date, present, onTime: present - late, late, checkedOut };
+  }
+
+  private assertDateRange(dateFrom?: string, dateTo?: string): void {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      throw AppRpcException.badRequest('Tanggal mulai tidak boleh setelah tanggal akhir.');
+    }
+  }
+
+  private isDuplicateAttendance(error: unknown): boolean {
+    const driver = (error as { driverError?: { code?: string; message?: string } }).driverError;
+    return (
+      driver?.code === 'ER_DUP_ENTRY' &&
+      Boolean(driver.message?.includes('uq_attendances_employee_date'))
+    );
   }
 
   private get timezone(): string {

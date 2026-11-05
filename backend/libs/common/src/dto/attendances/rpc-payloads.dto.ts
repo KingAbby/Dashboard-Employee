@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsDateString, IsOptional, IsString, IsUUID, MaxLength, Matches } from 'class-validator';
 import { PaginationQueryDto } from '../pagination-query.dto';
 
@@ -11,6 +12,7 @@ export class CheckInPayloadDto {
   photo!: string;
 
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @MaxLength(255, { message: 'Catatan maksimal 255 karakter.' })
   note?: string;
