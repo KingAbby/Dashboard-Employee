@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import type {
+  AdminAttendance,
   Attendance,
+  AttendanceAdminQuery,
   AttendancePhotoType,
   AttendanceQuery,
+  AttendanceSummary,
   Paginated,
   TodayAttendance,
 } from '../../types/api';
@@ -13,7 +16,19 @@ const ATTENDANCE_KEY = 'attendance';
 export const attendanceKeys = {
   today: [ATTENDANCE_KEY, 'today'] as const,
   mine: (query: AttendanceQuery) => [ATTENDANCE_KEY, 'mine', query] as const,
+  admin: (query: AttendanceAdminQuery) => [ATTENDANCE_KEY, 'admin', query] as const,
+  summary: [ATTENDANCE_KEY, 'summary'] as const,
 };
+
+/** Buang parameter kosong supaya query string tetap bersih. */
+const toParams = (query: AttendanceAdminQuery) => ({
+  page: query.page,
+  limit: query.limit,
+  ...(query.dateFrom ? { dateFrom: query.dateFrom } : {}),
+  ...(query.dateTo ? { dateTo: query.dateTo } : {}),
+  ...(query.employeeId ? { employeeId: query.employeeId } : {}),
+  ...(query.status ? { status: query.status } : {}),
+});
 
 export const useTodayAttendance = () =>
   useQuery({
@@ -33,6 +48,29 @@ export const useMyAttendances = (query: AttendanceQuery) =>
       return data;
     },
     placeholderData: (previous) => previous,
+  });
+
+/** Monitoring admin: seluruh absensi, sudah lengkap dengan nama karyawan. */
+export const useAdminAttendances = (query: AttendanceAdminQuery) =>
+  useQuery({
+    queryKey: attendanceKeys.admin(query),
+    queryFn: async () => {
+      const { data } = await api.get<Paginated<AdminAttendance>>('/attendances', {
+        params: toParams(query),
+      });
+      return data;
+    },
+    placeholderData: (previous) => previous,
+  });
+
+export const useAttendanceSummary = () =>
+  useQuery({
+    queryKey: attendanceKeys.summary,
+    queryFn: async () => {
+      const { data } = await api.get<AttendanceSummary>('/attendances/summary');
+      return data;
+    },
+    refetchInterval: 60_000,
   });
 
 const useAttendanceMutation = (path: 'check-in' | 'check-out') => {

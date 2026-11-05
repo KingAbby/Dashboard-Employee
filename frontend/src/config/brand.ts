@@ -1,12 +1,14 @@
 /**
- * Satu tempat untuk identitas aplikasi. Ganti nilai di sini kalau nanti
- * mau pakai nama brand sungguhan.
+ * Satu tempat untuk identitas aplikasi. Logo berasal dari
+ * `frontend/public/DexaHR.png` yang dipangkas ruang kosongnya menjadi
+ * `dexahr-logo.png` (lockup lengkap) dan `dexahr-mark.png` (ikon saja).
  */
 export const BRAND = {
-  name: 'Hadirku',
-  wordmark: 'hadirku',
+  name: 'DexaHR',
+  wordmark: 'DexaHR',
   tagline: 'Portal Kehadiran',
-  initial: 'H',
+  logo: '/dexahr-logo.png',
+  mark: '/dexahr-mark.png',
 } as const;
 
 export const ROLE_LABEL: Record<'EMPLOYEE' | 'ADMIN_HRD', string> = {

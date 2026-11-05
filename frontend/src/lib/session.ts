@@ -1,9 +1,9 @@
 import type { AuthUser } from '../types/api';
 
-const TOKEN_KEY = 'hadirku.token';
-const USER_KEY = 'hadirku.user';
-export const SESSION_CHANGED_EVENT = 'hadirku:session-changed';
-export const SESSION_EXPIRED_EVENT = 'hadirku:session-expired';
+const TOKEN_KEY = 'dexahr.token';
+const USER_KEY = 'dexahr.user';
+export const SESSION_CHANGED_EVENT = 'dexahr:session-changed';
+export const SESSION_EXPIRED_EVENT = 'dexahr:session-expired';
 
 /**
  * Token di localStorage: cukup untuk scope tes ini. Catat sebagai batasan

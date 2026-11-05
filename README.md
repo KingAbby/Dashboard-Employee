@@ -1,4 +1,4 @@
-# Hadirku — Absensi WFH & Monitoring Karyawan
+# DexaHR — Absensi WFH & Monitoring Karyawan
 
 Satu aplikasi web dengan dua peran:
 
@@ -6,6 +6,8 @@ Satu aplikasi web dengan dua peran:
 - **ADMIN_HRD** — mengelola data master karyawan (tambah, ubah, nonaktifkan) dan memantau seluruh absensi secara *read only*.
 
 Frontend React + Vite, backend NestJS dengan tiga proses terpisah (gateway HTTP + dua microservice TCP), dua database MySQL.
+
+Brand, logo, dan warna diambil dari `frontend/public/DexaHR.png` + palette navy/sky di `frontend/src/index.css`; semuanya diatur dari `frontend/src/config/brand.ts`.
 
 ---
 
@@ -16,9 +18,9 @@ Frontend React + Vite, backend NestJS dengan tiga proses terpisah (gateway HTTP 
 | 1 | Fondasi: repo, docker, monorepo NestJS, migration + seed, TCP ping, filter/pipe/helmet/CORS, frontend + token desain + routing dasar | **selesai** |
 | 2 | Auth (login, JWT, guard role), CRUD karyawan di identity + endpoint gateway, halaman login, AppLayout, route guard, halaman `/admin/karyawan` | **selesai** |
 | 3 | Absensi: check-in/out, upload foto, halaman `/absen` dan `/riwayat` | **selesai** |
-| 4 | Monitoring admin, modal foto, state lengkap, e2e, README final | belum |
+| 4 | Monitoring admin, modal foto, state lengkap, e2e, README final | **selesai** |
 
-Halaman `/absen` dan `/riwayat` sudah berfungsi penuh untuk karyawan. `/admin/absensi` dan `/admin/dashboard` sudah ada di dalam layout (navigasi, guard, dan styling aktif) tetapi isinya masih penanda "tahap berikutnya".
+Semua halaman yang disebut di `agent.md` sudah berfungsi: `/login`, `/absen`, `/riwayat`, `/admin/dashboard`, `/admin/karyawan`, `/admin/absensi`. Admin mendarat di `/admin/absensi` setelah login, karyawan di `/absen`.
 
 ---
 
@@ -38,7 +40,7 @@ flowchart LR
 - Satu instance MySQL, dua database terpisah, **tanpa foreign key lintas database**. Attendance menyimpan `employee_id` sebagai referensi biasa.
 - Gateway yang menerbitkan JWT; identity hanya memvalidasi kredensial dan menyimpan data karyawan.
 - Error dari service dikirim sebagai `RpcException` dengan payload `{ statusCode, error, message }`, lalu dipetakan gateway menjadi respons HTTP dengan bentuk yang sama.
-- Kalau gateway butuh nama karyawan (tahap 4), ia mengambil absensi dari attendance lalu memanggil `identity.employee.getMany` dengan daftar `employee_id` — data karyawan tidak diduplikasi.
+- Kalau gateway butuh nama karyawan, ia mengambil absensi dari attendance lalu memanggil `identity.employee.getMany` dengan daftar `employee_id` — data karyawan tidak diduplikasi. Ini yang dipakai `GET /attendances` (monitoring admin): satu panggilan tambahan per halaman, bukan satu panggilan per baris.
 
 ### ER
 
@@ -185,9 +187,13 @@ Format error seragam:
 | POST | `/attendances/check-in` | EMPLOYEE | `multipart/form-data`: `photo` (wajib, JPG/PNG/WEBP, ≤ 5 MB), `note` (opsional) |
 | POST | `/attendances/check-out` | EMPLOYEE | Sama seperti check-in; hanya boleh setelah check-in hari itu |
 | GET | `/attendances/me` | EMPLOYEE | Riwayat milik sendiri; filter `dateFrom`, `dateTo`, pagination |
+| GET | `/attendances` | ADMIN_HRD | Semua absensi + nama karyawan; filter `dateFrom`, `dateTo`, `employeeId`, `status`, pagination |
+| GET | `/attendances/summary` | ADMIN_HRD | Ringkasan hari ini: `present`, `onTime`, `late`, `checkedOut`, `totalActiveEmployees`, `notCheckedIn` |
 | GET | `/attendances/:id/photo?type=in\|out` | pemilik atau ADMIN_HRD | Streaming foto dari `UPLOAD_DIR`, tidak pernah publik |
 
 Aturan yang ditegakkan: satu check-in dan satu check-out per hari (`409` bila diulang), jam diambil dari server (`APP_TIMEZONE`, default `Asia/Jakarta`), status `ON_TIME`/`LATE` dihitung dari `WORK_START_TIME` + `LATE_TOLERANCE_MINUTES`, dan file foto dihapus lagi kalau penyimpanan ke database gagal.
+
+Endpoint admin hanya untuk membaca. Tidak ada `PATCH`/`DELETE` absensi, dan endpoint milik karyawan (`today`, `check-in`, `check-out`, `me`) menolak token ADMIN_HRD dengan `403`.
 
 ### Health
 | Method | Path | Keterangan |
@@ -195,7 +201,11 @@ Aturan yang ditegakkan: satu check-in dan satu check-out per hari (`409` bila di
 | GET | `/health` | Ping `ping` via TCP ke identity dan attendance |
 
 ### Monitoring admin
-Endpoint agregat untuk dashboard HRD (`/admin/attendances`, ringkasan kehadiran) menyusul pada tahap 4.
+- `/admin/absensi` menampilkan tabel absensi semua karyawan: nama + kode + divisi, tanggal, jam masuk/pulang, status, dan tombol **Lihat bukti**.
+- Filter: rentang tanggal, karyawan (dropdown, 100 karyawan pertama), status (tepat waktu/terlambat), plus tombol pintas **Hari ini**.
+- Modal bukti menampilkan foto masuk dan pulang berdampingan, keduanya diambil lewat endpoint ber-Bearer (bukan URL publik). Kalau check-out belum ada, kolom foto pulang menjelaskan itu.
+- `/admin/dashboard` menampilkan empat kartu ringkasan hari ini (hadir, terlambat, sudah pulang, belum absen) dan lima absensi terbaru.
+- Semua daftar punya state loading (skeleton), kosong, dan error dengan tombol coba lagi.
 
 ---
 
@@ -217,9 +227,10 @@ Endpoint agregat untuk dashboard HRD (`/admin/attendances`, ringkasan kehadiran)
 │   │                      PhotoCapture, PhotoPreview, icons
 │   ├── components/layout/ AppLayout, Sidebar, Topbar
 │   ├── features/          auth (provider, hook, guard), employees (query + form modal),
-│   │                      attendance (query, mutation, jam server, badge status)
+│   │                      attendance (query, mutasi, jam server, badge status,
+│   │                      AttendancePhoto + AttendancePhotoModal)
 │   ├── pages/             LoginPage, employee/AbsenPage, employee/RiwayatPage,
-│   │                      admin/KaryawanPage, penanda halaman tahap 4
+│   │                      admin/AbsensiPage, admin/DashboardPage, admin/KaryawanPage
 │   └── lib/               api (axios), session, format (Intl Asia/Jakarta), query-client
 ├── docker-compose.yml     MySQL 8 (database dibuat oleh `npm run migrate`)
 ├── .env                   konfigurasi lokal, git-ignored, disalin dari .env.example
@@ -242,7 +253,7 @@ Hal-hal yang diputuskan sendiri selama pengerjaan (lihat juga `agent.md` bagian 
 8. **Palette mengikuti brand yang disiapkan di `index.css`.** Warna diambil dari blok palette di bagian bawah file tersebut: navy `#0A2B4C` sebagai primary, sky `#8ED1FC` sebagai aksen, red `#EA4335`, background `#F4F6F8`, teks `#1C1D1F`. `design.md` tetap dipakai untuk struktur, ritme, dan pola komponen, bukan warnanya. Beberapa nilai digeser agar kontras lolos WCAG AA: red `#EA4335` (3.9:1 di atas putih) dipakai sebagai `#D33426` (4.9:1) untuk teks/tombol, dan sky hanya untuk isian/aksen dekoratif karena sebagai teks hanya 1.7:1.
 9. **Tailwind 4 (CSS-first).** Token desain ada di `frontend/src/index.css` pada blok `@theme`, bukan `tailwind.config.js` (Tailwind 4 tidak lagi memakai file config untuk token).
 10. **Linter backend memakai oxlint.** Sudah terpasang di scaffold (`oxlint --type-aware`) dan jalan tanpa konfigurasi tambahan; Prettier tetap dipakai untuk format. Frontend memakai ESLint 10 + typescript-eslint.
-11. **Halaman awal admin sementara `/admin/karyawan`.** Sesuai `agent.md`, setelah login admin diarahkan ke `/admin/absensi`; halaman itu baru diisi pada tahap 4, jadi sementara admin mendarat di halaman karyawan (`frontend/src/features/auth/paths.ts`).
+11. **Halaman awal admin `/admin/absensi`.** Sesuai `agent.md`, setelah login admin langsung mendarat di halaman monitoring. Sebelum tahap 4 halaman itu belum ada isinya sehingga admin sementara diarahkan ke `/admin/karyawan`; sekarang sudah dikembalikan (`frontend/src/features/auth/paths.ts`).
 12. **Foto seed adalah placeholder.** Script seed membuat PNG gradient 480×360 sebagai isi `uploads/attendance/YYYY/MM/`, supaya modal pratinjau admin (tahap 4) punya file yang benar-benar bisa dibuka.
 13. **Seeder idempoten.** Data dicek per email / per `(employee_id, attendance_date)` sebelum diinsert, jadi `npm run seed` boleh dijalankan berulang.
 14. **Timestamp dari klien tidak pernah dipakai.** Jam check-in/out diambil dari `new Date()` di service attendance, koneksi MySQL memakai `timezone: 'Z'`, kolom `DATETIME(6)` menyimpan UTC, dan frontend hanya menampilkan WIB lewat `Intl`.
@@ -250,30 +261,39 @@ Hal-hal yang diputuskan sendiri selama pengerjaan (lihat juga `agent.md` bagian 
 16. **Check-out ikut di tahap 3.** `agent.md` hanya menyebut check-in, tetapi status absensi dan halaman riwayat butuh jam pulang; kontraknya ditambahkan sebagai `POST /attendances/check-out` dengan aturan yang sama (foto wajib, sekali per hari).
 17. **Satu `.env` di root.** Docker compose, ketiga service, dan script `migrate`/`seed` membaca file yang sama (`envFilePath: ['../.env', '.env']`), jadi `DB_PASSWORD` hanya ada di satu tempat. Compose memakai `${DB_PASSWORD:?…}` tanpa default: tanpa `.env`, `npm run db:up` berhenti dengan pesan jelas, bukan diam-diam memakai password tebakan.
 18. **Mengganti password MySQL butuh volume baru.** `MYSQL_ROOT_PASSWORD` hanya dipakai saat volume masih kosong. Setelah itu password tersimpan di dalam volume, jadi ganti `DB_PASSWORD` disertai `npm run db:reset` — bukan hanya restart container.
+19. **Komposisi nama karyawan dilakukan gateway.** `attendance.list` hanya mengembalikan `employeeId`; gateway mengumpulkan id unik satu halaman lalu memanggil `identity.employee.getMany` sekali. Responsnya hanya memuat id, kode, nama, jabatan, divisi, dan status aktif — email dan nomor telepon tidak ikut ke halaman monitoring. Karyawan yang sudah dihapus dari identity (kasus teoretis) tampil sebagai "Karyawan tidak dikenal", bukan membuat satu baris hilang.
+20. **Filter karyawan memakai 100 karyawan pertama.** Dropdown memakai `GET /employees?limit=100` (batas maksimal API) tanpa pencarian server-side. Cukup untuk skala tes; kalau datanya ribuan, ganti dengan combobox yang mencari ke server.
+21. **Ringkasan dashboard dihitung dari dua service.** Attendance menghitung `present/onTime/late/checkedOut` untuk tanggal WIB hari ini, identity memberi jumlah karyawan aktif, gateway menghitung `notCheckedIn = aktif − present` (tidak pernah negatif). Tidak ada tabel rekap tambahan.
+22. **Logo dipangkas otomatis dari file asli.** `frontend/public/DexaHR.png` punya banyak ruang kosong transparan; dipangkas dengan skrip PIL menjadi `dexahr-logo.png` (lockup ikon + wordmark, tinggi 128 px), `dexahr-mark.png` (ikon saja, 96 px), dan `dexahr-favicon.png` (64 px). Nama brand, tagline, dan path logo ada di `frontend/src/config/brand.ts`; nama aplikasi juga dipakai di `<title>` dan `index.html`.
+23. **E2E login berjalan tanpa MySQL.** Test `backend/test/auth.e2e.spec.ts` menembak HTTP gateway sungguhan lewat supertest, tetapi identity diganti stub dan `@nestjs/throttler` di-mock. Throttler 6.x masih CJS yang me-require `@nestjs/common` (ESM-only); aplikasi jalan karena Node 20.19+ mendukung `require(esm)`, sedangkan runtime Jest belum. Rate limit tetap aktif saat aplikasi berjalan — yang di-mock hanya di test. Jalankan dengan `npm run test:e2e`.
 
 ---
 
 ## Menjalankan test
 
 ```bash
-npm test          # Jest (backend), 22 test
-npm run lint      # oxlint (backend) + ESLint (frontend)
-npm run build     # build ketiga app + build frontend
+npm test            # Jest (backend), 29 test termasuk e2e login
+npm run test:e2e    # hanya test e2e login di backend/test/
+npm run lint        # oxlint (backend) + ESLint (frontend)
+npm run build       # build ketiga app + build frontend
 ```
 
 Test yang ada sekarang:
 
 - `libs/common/src/errors/rpc-error.spec.ts` — pemetaan error RPC → HTTP, termasuk bentuk yang dibungkus transport TCP (regresi yang sempat membuat login gagal mengembalikan 500).
 - `apps/identity/src/employees/employees.service.spec.ts` — soft delete, larangan menonaktifkan akun sendiri, email duplikat, pembuatan kode otomatis, metadata pagination.
-- `apps/attendance/src/attendances/attendances.service.spec.ts` — check-in tepat waktu vs terlambat (termasuk batas toleransi), absen ganda ditolak, check-out butuh check-in, check-out ganda ditolak, dan status hari ini.
+- `apps/attendance/src/attendances/attendances.service.spec.ts` — check-in tepat waktu vs terlambat (termasuk batas toleransi), absen ganda ditolak, check-out butuh check-in, check-out ganda ditolak, status hari ini, filter `listAll`, dan hitungan `summary`.
+- `test/auth.e2e.spec.ts` — login lewat HTTP: token + profil tanpa hash, kredensial salah → 401, body tidak valid → 400, dan token hasil login bisa dipakai di `/api/auth/me`.
 
 Jest berjalan dalam mode ESM (`--experimental-vm-modules`) karena paket `@nestjs/*` versi 12 hanya tersedia sebagai ESM.
 
 ---
 
-## Yang belum ada (tahap 4)
+## Batasan dan pengembangan lanjutan
 
-- Endpoint agregat admin: daftar absensi semua karyawan per tanggal, ringkasan kehadiran harian, dan filter departemen/status.
-- Halaman `/admin/absensi` (tabel monitoring + modal pratinjau foto) dan `/admin/dashboard`.
-- State lengkap di UI: skeleton, error, dan empty state untuk setiap halaman admin.
-- Satu e2e login, dan README final.
+Tahap 1–4 selesai. Yang sengaja tidak dikerjakan karena di luar scope `agent.md`:
+
+- Ekspor CSV absensi, filter per departemen di halaman monitoring, dan daftar "siapa belum absen" per nama (dashboard hanya menampilkan jumlahnya).
+- Dropdown karyawan di filter monitoring baru memuat 100 karyawan pertama; untuk data besar perlu pencarian server-side.
+- Token di `localStorage` tanpa refresh token (lihat bagian Keputusan). Tidak ada fitur lupa password; reset dilakukan admin HRD.
+- Komunikasi antar-service masih TCP tanpa broker, tanpa retry/queue.

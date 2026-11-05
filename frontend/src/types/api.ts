@@ -72,6 +72,39 @@ export interface AttendanceQuery {
   dateTo?: string;
 }
 
+/** Potongan karyawan yang ikut di daftar absensi admin (tanpa kontak pribadi). */
+export interface AttendanceEmployee {
+  id: string;
+  employeeCode: string;
+  fullName: string;
+  position: string | null;
+  department: string | null;
+  isActive: boolean;
+}
+
+export interface AdminAttendance extends Attendance {
+  employee: AttendanceEmployee | null;
+}
+
+export interface AttendanceAdminQuery {
+  page: number;
+  limit: number;
+  dateFrom?: string;
+  dateTo?: string;
+  employeeId?: string;
+  status?: AttendanceStatus;
+}
+
+export interface AttendanceSummary {
+  date: string;
+  present: number;
+  onTime: number;
+  late: number;
+  checkedOut: number;
+  totalActiveEmployees: number;
+  notCheckedIn: number;
+}
+
 export interface ApiErrorBody {
   statusCode: number;
   error: string;

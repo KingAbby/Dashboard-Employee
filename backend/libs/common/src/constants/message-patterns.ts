@@ -18,6 +18,7 @@ export const MESSAGE_PATTERNS = {
   ATTENDANCE_CHECK_OUT: 'attendance.checkOut',
   ATTENDANCE_LIST_ME: 'attendance.listMe',
   ATTENDANCE_LIST: 'attendance.list',
+  ATTENDANCE_SUMMARY: 'attendance.summary',
   ATTENDANCE_GET: 'attendance.get',
 } as const;
 

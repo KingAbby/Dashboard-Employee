@@ -19,3 +19,4 @@ export * from './dto/employees/list-employees-query.dto';
 export * from './dto/employees/rpc-payloads.dto';
 export * from './dto/attendances/rpc-payloads.dto';
 export * from './dto/attendances/list-my-attendances-query.dto';
+export * from './dto/attendances/list-attendances-query.dto';

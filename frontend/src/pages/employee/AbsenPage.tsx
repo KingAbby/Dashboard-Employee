@@ -99,8 +99,13 @@ export function AbsenPage() {
                 {formatTime(serverNow.toISOString())}
               </p>
               <p className="mt-1.5 text-[11.5px] text-muted">
-                {formatDate(todayQuery.data?.date)} · WIB · jam masuk{' '}
-                {todayQuery.data?.workStartTime ?? '09:00'}
+                {formatDate(todayQuery.data?.date)} · WIB
+                <span className="mt-0.5 block whitespace-nowrap">
+                  Jam masuk{' '}
+                  <span className="font-semibold tabular-nums text-ink">
+                    {todayQuery.data?.workStartTime ?? '09:00'}
+                  </span>
+                </span>
               </p>
             </div>
             <AttendanceStatusBadge status={attendance?.status} />

@@ -5,6 +5,7 @@ import {
   type CheckInPayloadDto,
   type CheckOutPayloadDto,
   type EmployeeTodayPayloadDto,
+  type ListAttendancesQueryDto,
   type MyAttendancesQueryDto,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
@@ -33,6 +34,17 @@ export class AttendancesController {
   @MessagePattern(MESSAGE_PATTERNS.ATTENDANCE_LIST_ME)
   listMine(@Payload() query: MyAttendancesQueryDto) {
     return this.attendancesService.listMine(query);
+  }
+
+  /** Admin HRD: seluruh absensi dengan filter tanggal, karyawan, dan status. */
+  @MessagePattern(MESSAGE_PATTERNS.ATTENDANCE_LIST)
+  listAll(@Payload() query: ListAttendancesQueryDto) {
+    return this.attendancesService.listAll(query);
+  }
+
+  @MessagePattern(MESSAGE_PATTERNS.ATTENDANCE_SUMMARY)
+  summary() {
+    return this.attendancesService.summary();
   }
 
   @MessagePattern(MESSAGE_PATTERNS.ATTENDANCE_GET)

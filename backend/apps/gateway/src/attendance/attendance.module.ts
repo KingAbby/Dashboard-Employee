@@ -5,9 +5,11 @@ import { MulterModule } from '@nestjs/platform-express';
 import { AttendanceController } from './attendance.controller';
 import { AttendanceService } from './attendance.service';
 import { createAttendanceUploadOptions } from './upload.config';
+import { EmployeesModule } from '../employees/employees.module';
 
 @Module({
   imports: [
+    EmployeesModule,
     MulterModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) =>

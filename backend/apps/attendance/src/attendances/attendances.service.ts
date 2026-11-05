@@ -7,9 +7,11 @@ import {
   isLateCheckIn,
   parseTimeToMinutes,
   toZonedParts,
+  type AttendanceDayCountsResponse,
   type AttendanceResponse,
   type CheckInPayloadDto,
   type CheckOutPayloadDto,
+  type ListAttendancesQueryDto,
   type MyAttendancesQueryDto,
   type Paginated,
   type TodayAttendanceResponse,
@@ -126,6 +128,55 @@ export class AttendancesService {
     const attendance = await this.attendances.findOne({ where: { id } });
     if (!attendance) throw AppRpcException.notFound(ERROR_MESSAGES.ATTENDANCE_NOT_FOUND);
     return toAttendanceResponse(attendance);
+  }
+
+  /**
+   * Daftar absensi semua karyawan untuk admin HRD (view only).
+   * Nama karyawan tidak disimpan di sini; gateway yang menggabungkannya.
+   */
+  async listAll(query: ListAttendancesQueryDto): Promise<Paginated<AttendanceResponse>> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    const qb = this.attendances.createQueryBuilder('attendance');
+
+    if (query.dateFrom) {
+      qb.andWhere('attendance.attendance_date >= :dateFrom', { dateFrom: query.dateFrom });
+    }
+    if (query.dateTo) {
+      qb.andWhere('attendance.attendance_date <= :dateTo', { dateTo: query.dateTo });
+    }
+    if (query.employeeId) {
+      qb.andWhere('attendance.employee_id = :employeeId', { employeeId: query.employeeId });
+    }
+    if (query.status) {
+      qb.andWhere('attendance.status = :status', { status: query.status });
+    }
+
+    qb.orderBy('attendance.attendance_date', 'DESC')
+      .addOrderBy('attendance.check_in_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [rows, total] = await qb.getManyAndCount();
+    return buildPaginated(rows.map(toAttendanceResponse), page, limit, total);
+  }
+
+  /** Hitungan hari ini untuk kartu ringkasan dashboard admin. */
+  async summary(): Promise<AttendanceDayCountsResponse> {
+    const date = toZonedParts(new Date(), this.timezone).date;
+
+    const [present, late, checkedOut] = await Promise.all([
+      this.attendances.count({ where: { attendanceDate: date } }),
+      this.attendances.count({ where: { attendanceDate: date, status: AttendanceStatus.LATE } }),
+      this.attendances
+        .createQueryBuilder('attendance')
+        .where('attendance.attendance_date = :date', { date })
+        .andWhere('attendance.check_out_at IS NOT NULL')
+        .getCount(),
+    ]);
+
+    return { date, present, onTime: present - late, late, checkedOut };
   }
 
   private get timezone(): string {

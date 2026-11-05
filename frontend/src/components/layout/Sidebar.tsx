@@ -1,15 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  CalendarIcon,
-  ClockIcon,
-  GridIcon,
-  HistoryIcon,
-  LogOutIcon,
-  UsersIcon,
-} from '../ui/icons';
+import { CalendarIcon, ClockIcon, GridIcon, HistoryIcon, LogOutIcon, UsersIcon } from '../ui/icons';
 import { cn } from '../../lib/cn';
-import { NAV_GROUPS } from '../../config/brand';
+import { BRAND, NAV_GROUPS } from '../../config/brand';
 import type { Role } from '../../types/api';
 import { Avatar } from '../ui/Avatar';
 
@@ -38,24 +31,14 @@ export function Sidebar({ role, fullName, email, activePath, onNavigate, onLogou
 
   return (
     <aside className="flex h-full w-[232px] flex-col border-r border-line bg-surface">
-      <div className="flex items-center gap-2.5 px-5 py-[18px]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary text-primary-bright shadow-[0_2px_6px_rgba(10,43,76,0.25)]">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="m5.5 12.5 4.2 4.2L18.5 7"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[15px] font-extrabold leading-none tracking-[-0.02em] text-ink">
-            hadirku
-          </span>
-          <span className="label-caps mt-1 block text-[8px] text-primary">Portal Kehadiran</span>
-        </span>
+      <div className="flex items-center px-5 py-5">
+        <img
+          src={BRAND.logo}
+          alt={`${BRAND.name} — ${BRAND.tagline}`}
+          width={535}
+          height={128}
+          className="h-8 w-auto"
+        />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4 pt-2" aria-label="Menu utama">
@@ -83,7 +66,11 @@ export function Sidebar({ role, fullName, email, activePath, onNavigate, onLogou
                       {active ? (
                         <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary" />
                       ) : null}
-                      <span className={active ? 'text-primary-strong' : 'text-subtle group-hover:text-muted'}>
+                      <span
+                        className={
+                          active ? 'text-primary-strong' : 'text-subtle group-hover:text-muted'
+                        }
+                      >
                         <Icon size={16} />
                       </span>
                       {item.label}

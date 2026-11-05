@@ -40,6 +40,15 @@ export const formatTime = (value: string | null | undefined): string => {
 
 export const formatLongDate = (value: Date = new Date()): string => longDateFormatter.format(value);
 
+/** Tanggal hari ini (YYYY-MM-DD) menurut zona aplikasi, bukan zona browser. */
+export const todayISODate = (): string =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
 export const initials = (name: string): string =>
   name
     .split(' ')

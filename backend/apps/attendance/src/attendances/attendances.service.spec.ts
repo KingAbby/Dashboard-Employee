@@ -33,15 +33,33 @@ const buildConfig = () =>
       })[key] ?? fallback,
   }) as unknown as ConfigService;
 
-const buildRepository = () => {
+const buildRepository = (queryBuilder?: ReturnType<typeof buildQueryBuilder>) => {
   const mock = {
     findOne: jest.fn<() => Promise<Attendance | null>>(async () => null),
     save: jest.fn<(entity: Attendance) => Promise<Attendance>>(async (entity) => entity),
     // TypeORM mengisi createdAt/updatedAt saat save; di test diisi default fixture.
     create: jest.fn<(input: Partial<Attendance>) => Attendance>((input) => buildAttendance(input)),
+    count: jest.fn<(options?: unknown) => Promise<number>>(async () => 0),
+    createQueryBuilder: jest.fn(() => queryBuilder),
   };
 
   return { repository: mock as unknown as Repository<Attendance>, mock };
+};
+
+/** Query builder rantai minimal untuk listAll() dan summary(). */
+const buildQueryBuilder = (rows: Attendance[], total: number) => {
+  const qb = {
+    where: jest.fn(() => qb),
+    andWhere: jest.fn(() => qb),
+    orderBy: jest.fn(() => qb),
+    addOrderBy: jest.fn(() => qb),
+    skip: jest.fn(() => qb),
+    take: jest.fn(() => qb),
+    getManyAndCount: jest.fn<() => Promise<[Attendance[], number]>>(async () => [rows, total]),
+    getCount: jest.fn<() => Promise<number>>(async () => total),
+  };
+
+  return qb;
 };
 
 const payload = (overrides: Partial<CheckInPayloadDto> = {}): CheckInPayloadDto => ({
@@ -156,6 +174,66 @@ describe('AttendancesService', () => {
       expect(result.attendance).toBeNull();
       expect(result.date).toBe('2026-11-04');
       expect(result.workStartTime).toBe('09:00');
+    });
+  });
+
+  describe('listAll', () => {
+    it('meneruskan filter tanggal, karyawan, dan status ke query', async () => {
+      const qb = buildQueryBuilder([buildAttendance()], 11);
+      const { repository } = buildRepository(qb);
+      const service = new AttendancesService(repository, buildConfig());
+
+      const result = await service.listAll({
+        page: 2,
+        limit: 5,
+        dateFrom: '2026-11-01',
+        dateTo: '2026-11-04',
+        employeeId: EMPLOYEE_ID,
+        status: AttendanceStatus.LATE,
+      });
+
+      expect(qb.andWhere).toHaveBeenCalledTimes(4);
+      expect(qb.skip).toHaveBeenCalledWith(5);
+      expect(qb.take).toHaveBeenCalledWith(5);
+      expect(result.meta).toEqual({ page: 2, limit: 5, total: 11, totalPages: 3 });
+      expect(result.data).toHaveLength(1);
+    });
+
+    it('tanpa filter tetap memakai urutan terbaru dan pagination default', async () => {
+      const qb = buildQueryBuilder([], 0);
+      const { repository } = buildRepository(qb);
+      const service = new AttendancesService(repository, buildConfig());
+
+      const result = await service.listAll({ page: undefined, limit: undefined } as never);
+
+      expect(qb.andWhere).not.toHaveBeenCalled();
+      expect(qb.orderBy).toHaveBeenCalledWith('attendance.attendance_date', 'DESC');
+      expect(qb.skip).toHaveBeenCalledWith(0);
+      expect(result.meta).toEqual({ page: 1, limit: 10, total: 0, totalPages: 0 });
+    });
+  });
+
+  describe('summary', () => {
+    it('menghitung hadir, terlambat, dan sudah pulang untuk tanggal WIB hari ini', async () => {
+      // 2026-11-04 02:00 UTC = 09:00 WIB
+      jest.setSystemTime(new Date('2026-11-04T02:00:00.000Z'));
+      const qb = buildQueryBuilder([], 3);
+      const { repository, mock } = buildRepository(qb);
+      mock.count.mockResolvedValueOnce(5).mockResolvedValueOnce(2);
+      const service = new AttendancesService(repository, buildConfig());
+
+      const result = await service.summary();
+
+      expect(result).toEqual({
+        date: '2026-11-04',
+        present: 5,
+        onTime: 3,
+        late: 2,
+        checkedOut: 3,
+      });
+      expect(mock.count).toHaveBeenNthCalledWith(1, {
+        where: { attendanceDate: '2026-11-04' },
+      });
     });
   });
 });

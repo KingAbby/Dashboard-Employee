@@ -1,6 +1,7 @@
 import {
   ERROR_MESSAGES,
   IdParamDto,
+  ListAttendancesQueryDto,
   ListMyAttendancesQueryDto,
   Role,
   type AttendancePhotoQueryDto,
@@ -91,6 +92,20 @@ export class AttendanceController {
   @Roles(Role.EMPLOYEE)
   listMine(@Query() query: ListMyAttendancesQueryDto, @CurrentUser() user: AuthUser) {
     return this.attendanceService.listMine(user.id, query);
+  }
+
+  /** Admin HRD: seluruh absensi (view only), dengan filter tanggal/karyawan/status. */
+  @Get()
+  @Roles(Role.ADMIN_HRD)
+  list(@Query() query: ListAttendancesQueryDto) {
+    return this.attendanceService.list(query);
+  }
+
+  /** Admin HRD: ringkasan hari ini untuk dashboard. */
+  @Get('summary')
+  @Roles(Role.ADMIN_HRD)
+  summary() {
+    return this.attendanceService.summary();
   }
 
   /** Foto tidak pernah publik: pemilik atau admin HRD, lewat header Authorization. */

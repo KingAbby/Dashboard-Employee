@@ -56,24 +56,15 @@ const DEMO_ACCOUNTS = [
 ];
 
 const BrandMark = () => (
-  <span className="flex items-center gap-2.5">
-    <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary text-primary-bright shadow-[0_2px_8px_rgba(10,43,76,0.28)]">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="m5.5 12.5 4.2 4.2L18.5 7"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-    <span>
-      <span className="block text-[16px] font-extrabold leading-none tracking-[-0.02em] text-ink">
-        {BRAND.wordmark}
-      </span>
-      <span className="label-caps mt-1 block text-[8px] text-primary">{BRAND.tagline}</span>
-    </span>
+  <span className="flex flex-col gap-1">
+    <img
+      src={BRAND.logo}
+      alt={`${BRAND.name} — ${BRAND.tagline}`}
+      width={535}
+      height={128}
+      className="h-9 w-auto self-start"
+    />
+    <span className="label-caps block pl-0.5 text-[8px] text-primary">{BRAND.tagline}</span>
   </span>
 );
 
