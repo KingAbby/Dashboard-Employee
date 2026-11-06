@@ -19,10 +19,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     config: ConfigService,
     @Inject(IDENTITY_CLIENT) private readonly identity: ClientProxy,
   ) {
+    const secret = config.get<string>('JWT_SECRET');
+    if (!secret) throw new Error('JWT_SECRET belum diatur di .env');
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') ?? 'dev_secret_change_me',
+      secretOrKey: secret,
     });
   }
 

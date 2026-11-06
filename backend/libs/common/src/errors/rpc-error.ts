@@ -111,7 +111,9 @@ export const toRpcErrorPayload = (exception: unknown): RpcErrorPayload => {
       message = response['message'] as string | string[];
     }
 
-    if (statusCode === HttpStatus.BAD_REQUEST && Array.isArray(message)) {
+    if (statusCode === HttpStatus.PAYLOAD_TOO_LARGE) {
+      message = ERROR_MESSAGES.ATTENDANCE_PHOTO_TOO_LARGE;
+    } else if (statusCode === HttpStatus.BAD_REQUEST && Array.isArray(message)) {
       message = message.length > 0 ? message : ERROR_MESSAGES.VALIDATION_FAILED;
     } else if (statusCode === HttpStatus.BAD_REQUEST && message === 'Bad Request Exception') {
       message = ERROR_MESSAGES.VALIDATION_FAILED;

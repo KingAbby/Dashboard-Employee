@@ -59,7 +59,7 @@ erDiagram
 
 ## Prasyarat
 
-- Node.js 20+
+- Node.js 20.19+
 - Docker Desktop (MySQL)
 - npm
 
@@ -151,7 +151,7 @@ Pagination: `page` (mulai 1), `limit` (default 10, maksimal 100).
 ## Menjalankan test
 
 ```bash
-npm test          # Jest (backend)
+npm test          # unit test + e2e login (Jest, backend)
 npm run lint      # oxlint (backend) + ESLint (frontend)
 npm run build     # build backend + frontend
 ```

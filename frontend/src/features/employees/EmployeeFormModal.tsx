@@ -168,9 +168,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             label="Kode karyawan"
             value={employee?.employeeCode ?? nextCode.data?.employeeCode ?? ''}
             placeholder={nextCode.isLoading ? 'Membuat kode…' : 'Otomatis saat disimpan'}
-            hint={
-              employee ? 'Note: Kode tidak bisa diubah.' : 'Note: Generate otomatis oleh sistem.'
-            }
+            hint={employee ? 'Kode tidak bisa diubah.' : 'Kode dibuat otomatis oleh sistem.'}
             readOnly
             disabled
           />
@@ -180,11 +178,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
             type="password"
             required={!isEdit}
             placeholder={isEdit ? 'Kosongkan bila tidak diubah' : 'Buat password awal'}
-            hint={
-              isEdit
-                ? 'Note: Isi hanya bila ingin mengganti password.'
-                : 'Note: Minimal 8 karakter.'
-            }
+            hint={isEdit ? 'Isi hanya bila ingin mengganti password.' : 'Minimal 8 karakter.'}
             className="sm:col-span-2"
             error={errors.password?.message}
             {...register('password')}
@@ -214,7 +208,7 @@ function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
           <Input
             label="Jabatan"
             placeholder="Software Engineer"
-            hint="Note: Software Engineer, Staf Keuangan, etc."
+            hint="Contoh: Software Engineer, Staf Keuangan"
             error={errors.position?.message}
             {...register('position')}
           />

@@ -3,7 +3,7 @@ import { IsOptional, IsUUID, ValidateNested } from 'class-validator';
 import { CreateEmployeeDto } from './create-employee.dto';
 import { UpdateEmployeeDto } from './update-employee.dto';
 
-/** Amplop payload pesan TCP. Gateway menilai DTO, service memvalidasi ulang. */
+/** Amplop payload pesan TCP. Gateway memvalidasi DTO, service memvalidasi ulang. */
 
 export class GetEmployeePayload {
   @IsUUID('all', { message: 'ID tidak valid.' })
