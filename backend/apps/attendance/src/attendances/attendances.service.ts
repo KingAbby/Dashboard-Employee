@@ -143,10 +143,6 @@ export class AttendancesService {
     return toAttendanceResponse(attendance);
   }
 
-  /**
-   * Daftar absensi semua karyawan untuk admin HRD (view only).
-   * Nama karyawan tidak disimpan di sini; gateway yang menggabungkannya.
-   */
   async listAll(query: ListAttendancesQueryDto): Promise<Paginated<AttendanceResponse>> {
     this.assertDateRange(query.dateFrom, query.dateTo);
 

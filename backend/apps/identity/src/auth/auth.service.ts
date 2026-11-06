@@ -8,7 +8,6 @@ import { EmployeesService } from '../employees/employees.service';
 export class AuthService {
   constructor(private readonly employeesService: EmployeesService) {}
 
-  /** Identity hanya memverifikasi kredensial; JWT diterbitkan gateway. */
   async login(dto: LoginDto): Promise<LoginResult> {
     const employee = await this.employeesService.findByEmailForLogin(dto.email);
 

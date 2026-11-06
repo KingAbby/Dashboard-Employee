@@ -22,7 +22,6 @@ const SIZES = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/** Fokus terkunci dan bisa ditutup dengan Esc. */
 export function Modal({
   open,
   onClose,

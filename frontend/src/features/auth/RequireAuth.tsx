@@ -7,7 +7,6 @@ export interface RequireAuthProps {
   roles?: Role[];
 }
 
-/** Belum login → /login; role salah → halaman utama role tersebut. */
 export function RequireAuth({ roles }: RequireAuthProps) {
   const { user } = useAuth();
   const location = useLocation();

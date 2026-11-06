@@ -1,5 +1,3 @@
-/** Perhitungan waktu memakai zona aplikasi, bukan zona server/browser. */
-
 export const DEFAULT_TIMEZONE = 'Asia/Jakarta';
 
 export interface ZonedParts {
@@ -9,7 +7,6 @@ export interface ZonedParts {
   minute: number;
 }
 
-/** Tanggal + jam "dinding" pada zona tertentu, mis. { date: "2026-11-04", minutes: 545 }. */
 export const toZonedParts = (instant: Date, timeZone: string): ZonedParts => {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone,
@@ -37,13 +34,11 @@ export const toZonedParts = (instant: Date, timeZone: string): ZonedParts => {
   };
 };
 
-/** "09:00" atau "09:00:00" → 540. */
 export const parseTimeToMinutes = (time: string): number => {
   const [hours = '0', minutes = '0'] = time.split(':');
   return Number(hours) * 60 + Number(minutes);
 };
 
-/** Terlambat bila jam masuk melewati WORK_START_TIME + toleransi (menit). */
 export const isLateCheckIn = (
   checkInMinutes: number,
   workStartMinutes: number,

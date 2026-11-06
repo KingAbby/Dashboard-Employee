@@ -16,27 +16,12 @@ import { of, throwError } from 'rxjs';
 import request from 'supertest';
 import { IDENTITY_CLIENT } from '../apps/gateway/src/clients/clients.module';
 
-/**
- * `@nestjs/throttler` 6.x masih CJS dan me-require `@nestjs/common` yang ESM-only.
- * Itu jalan di Node 20.19+ saat aplikasi berjalan, tetapi runtime require milik
- * Jest belum mendukung require(ESM) — jadi modul itu diganti stub no-op di sini.
- * Rate limit sendiri bukan bagian yang diuji pada test ini.
- */
 jest.unstable_mockModule('@nestjs/throttler', () => ({
   Throttle: () => () => undefined,
   ThrottlerGuard: class ThrottlerGuard {},
 }));
 
-// Harus di-import setelah mock terpasang.
 const { AuthModule } = await import('../apps/gateway/src/auth/auth.module');
-
-/**
- * E2E login lewat HTTP sungguhan (supertest) pada AuthModule gateway.
- * Identity diganti stub supaya test tidak butuh MySQL atau service TCP —
- * yang diuji di sini adalah alur gateway: validasi body, pemanggilan identity,
- * penerbitan JWT, dan pemetaan error RPC menjadi respons HTTP.
- */
-
 const ADMIN_ID = '11111111-1111-4111-8111-111111111111';
 const TEST_JWT_SECRET = 'test_secret_for_e2e_only';
 

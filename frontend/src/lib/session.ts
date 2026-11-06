@@ -6,7 +6,6 @@ const VISITED_KEY = 'dexahr.visited';
 export const SESSION_CHANGED_EVENT = 'dexahr:session-changed';
 export const SESSION_EXPIRED_EVENT = 'dexahr:session-expired';
 
-/** Token di localStorage (batasan: rawan XSS, tanpa refresh token). */
 export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
 
 export const getStoredUser = (): AuthUser | null => {
@@ -36,7 +35,6 @@ export const notifySessionExpired = (): void => {
   window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 };
 
-/** Hanya untuk sapaan login: pertama kali vs pernah membuka portal. */
 export const hasVisitedBefore = (): boolean => localStorage.getItem(VISITED_KEY) === '1';
 
 export const markVisited = (): void => localStorage.setItem(VISITED_KEY, '1');

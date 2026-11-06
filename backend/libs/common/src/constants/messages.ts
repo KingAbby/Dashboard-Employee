@@ -1,4 +1,3 @@
-/** Pesan yang tampil ke pengguna. Bahasa Indonesia, tanpa detail internal. */
 export const ERROR_MESSAGES = {
   VALIDATION_FAILED: 'Data yang dikirim tidak valid.',
   INTERNAL: 'Terjadi kesalahan pada server. Coba lagi beberapa saat lagi.',

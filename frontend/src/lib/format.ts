@@ -49,7 +49,6 @@ export const formatClock = (value: string | number | Date): string =>
 
 export const formatLongDate = (value: Date = new Date()): string => longDateFormatter.format(value);
 
-/** Tanggal hari ini (YYYY-MM-DD) menurut zona aplikasi, bukan zona browser. */
 export const todayISODate = (): string =>
   new Intl.DateTimeFormat('en-CA', {
     timeZone: TIMEZONE,

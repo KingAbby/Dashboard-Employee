@@ -27,10 +27,6 @@ export class EmployeesService {
     return this.send<EmployeeResponse>(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_GET, { id });
   }
 
-  /**
-   * Ambil beberapa karyawan sekaligus. Dipakai gateway untuk menempelkan nama
-   * karyawan pada daftar absensi admin (satu round-trip, bukan per baris).
-   */
   findMany(ids: string[]): Promise<EmployeeResponse[]> {
     if (ids.length === 0) return Promise.resolve([]);
     return this.send<EmployeeResponse[]>(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_GET_MANY, { ids });

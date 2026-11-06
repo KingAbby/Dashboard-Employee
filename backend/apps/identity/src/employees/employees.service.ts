@@ -116,7 +116,6 @@ export class EmployeesService {
     return rows.map(toEmployeeResponse);
   }
 
-  /** Untuk autentikasi: butuh password_hash yang secara default tidak di-select. */
   async findByEmailForLogin(email: string): Promise<Employee | null> {
     return this.employees
       .createQueryBuilder('employee')
@@ -204,7 +203,6 @@ export class EmployeesService {
     if (total > 0) throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CODE_TAKEN);
   }
 
-  /** Hanya pratinjau: kode final tetap dibuat saat create. */
   nextCode(): Promise<{ employeeCode: string }> {
     return this.generateEmployeeCode().then((employeeCode) => ({ employeeCode }));
   }
@@ -222,7 +220,6 @@ export class EmployeesService {
     return Number.parseInt(code.replace(/\D/g, ''), 10) || 0;
   }
 
-  /** Unique index tetap penjaga terakhir saat dua request berjalan bersamaan. */
   private duplicateTarget(error: unknown): 'code' | 'email' | null {
     const driver = (error as { driverError?: { code?: string; message?: string } }).driverError;
     const message = driver?.message ?? (error instanceof Error ? error.message : '');

@@ -3,7 +3,6 @@ import { RpcException } from '@nestjs/microservices';
 import type { Response } from 'express';
 import { toRpcErrorPayload, type RpcErrorPayload } from '../errors/rpc-error';
 
-/** Menyeragamkan semua error gateway jadi { statusCode, error, message }. */
 @Catch()
 export class HttpExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionsFilter.name);

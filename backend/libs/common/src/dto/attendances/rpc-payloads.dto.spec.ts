@@ -4,7 +4,6 @@ import type { ClassConstructor } from 'class-transformer';
 import { validate } from 'class-validator';
 import { EmployeeTodayPayloadDto, MyAttendancesQueryDto } from './rpc-payloads.dto';
 
-/** ID karyawan lama bisa berupa UUID v1, bukan hanya v4. */
 const UUID_V1 = 'a20b4373-d84b-11f1-b90d-46b8eb0694e4';
 const UUID_V4 = '22222222-4222-8222-8222-222222222222';
 

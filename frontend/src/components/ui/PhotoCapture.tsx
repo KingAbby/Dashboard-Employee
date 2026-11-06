@@ -13,7 +13,6 @@ export interface PhotoCaptureProps {
   disabled?: boolean;
 }
 
-/** Validasi di klien hanya untuk UX; server tetap memeriksa MIME dan ukuran. */
 export function PhotoCapture({ file, onChange, error, disabled = false }: PhotoCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);

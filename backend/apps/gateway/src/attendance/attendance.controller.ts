@@ -107,7 +107,6 @@ export class AttendanceController {
     return this.attendanceService.summary();
   }
 
-  /** Foto tidak pernah publik: pemilik atau admin HRD, lewat header Authorization. */
   @Get(':id/photo')
   async photo(
     @Param() params: IdParamDto,
@@ -144,10 +143,6 @@ export class AttendanceController {
     });
   }
 
-  /**
-   * Multer hanya memercayai MIME dari klien, jadi isi file dicek ulang lewat
-   * tanda tangan PNG/JPEG/WEBP sebelum disimpan.
-   */
   private async assertPhotoContent(file: Express.Multer.File): Promise<void> {
     if (await photoContentMatches(file.path, file.mimetype)) return;
 

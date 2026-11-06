@@ -77,7 +77,6 @@ export interface AttendanceQuery {
   dateTo?: string;
 }
 
-/** Potongan karyawan yang ikut di daftar absensi admin (tanpa kontak pribadi). */
 export interface AttendanceEmployee {
   id: string;
   employeeCode: string;

@@ -23,10 +23,6 @@ export interface TodayAttendanceResponse {
   attendance: AttendanceResponse | null;
 }
 
-/**
- * Potongan data karyawan yang ditempelkan gateway ke absensi admin.
- * Sengaja tanpa email/phone: halaman monitoring hanya butuh identitas kerja.
- */
 export interface AttendanceEmployeeSummary {
   id: string;
   employeeCode: string;

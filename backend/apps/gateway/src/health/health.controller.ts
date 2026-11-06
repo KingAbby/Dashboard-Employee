@@ -20,7 +20,6 @@ export class HealthController {
     @Inject(ATTENDANCE_CLIENT) private readonly attendance: ClientProxy,
   ) {}
 
-  /** Membuktikan jalur gateway -> identity/attendance (TCP) hidup. */
   @Get()
   async check() {
     const [identity, attendance] = await Promise.all([

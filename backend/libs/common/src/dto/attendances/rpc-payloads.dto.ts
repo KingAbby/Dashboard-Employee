@@ -2,7 +2,6 @@ import { Transform } from 'class-transformer';
 import { IsDateString, IsOptional, IsString, IsUUID, MaxLength, Matches } from 'class-validator';
 import { PaginationQueryDto } from '../pagination-query.dto';
 
-/** employeeId selalu diambil dari JWT di gateway, bukan dari klien. */
 export class CheckInPayloadDto {
   @IsUUID('all', { message: 'ID karyawan tidak valid.' })
   employeeId!: string;

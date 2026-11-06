@@ -3,9 +3,6 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Brand: navy sebagai warna utama, sky-blue hanya untuk aksen dekoratif.
-     Nilai teks dipilih agar lolos WCAG AA di atas putih dan #F4F6F8
-     (navy 14.4:1, red 4.9:1, sky tidak dipakai untuk teks). */
   --color-primary: #0a2b4c;
   --color-primary-strong: #071f38;
   --color-primary-bright: #8ed1fc;
@@ -22,7 +19,7 @@
   --color-muted: #4e5a68;
   --color-subtle: #5f6b7a;
 
-  /* Semantik — hanya untuk status dan angka. */
+  /* Semantik — status dan angka. */
   --color-success: #0f7a4f;
   --color-success-tint: #ecfaf3;
   --color-warning: #8a5a00;
@@ -62,7 +59,6 @@
 }
 
 @layer components {
-  /* Label kecil kapital dengan letter-spacing lebar. */
   .label-caps {
     font-size: 10px;
     font-weight: 700;

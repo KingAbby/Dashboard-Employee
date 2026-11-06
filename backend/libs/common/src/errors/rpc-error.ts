@@ -2,7 +2,6 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { ERROR_MESSAGES } from '../constants/messages';
 
-/** Bentuk error yang konsisten dari service ke gateway. */
 export interface RpcErrorPayload {
   statusCode: number;
   error: string;
@@ -57,10 +56,6 @@ export class AppRpcException extends RpcException {
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
-/**
- * Menyeragamkan berbagai jenis exception (HttpException dari ValidationPipe,
- * AppRpcException, error tak terduga) menjadi payload RPC.
- */
 const normalizePayload = (raw: Record<string, unknown>): RpcErrorPayload | null => {
   if (typeof raw['statusCode'] === 'number') {
     return {

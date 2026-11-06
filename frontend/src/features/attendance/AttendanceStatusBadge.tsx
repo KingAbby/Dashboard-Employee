@@ -5,7 +5,6 @@ export interface AttendanceStatusBadgeProps {
   status: AttendanceStatus | null | undefined;
 }
 
-/** Status absensi selalu tampil dengan teks, bukan hanya warna. */
 export function AttendanceStatusBadge({ status }: AttendanceStatusBadgeProps) {
   if (!status) return <Badge tone="neutral">Belum absen</Badge>;
 

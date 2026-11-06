@@ -1,6 +1,5 @@
 import type { Role } from '../enums/role.enum';
 
-/** Bentuk karyawan yang boleh keluar dari API (tanpa password_hash). */
 export interface EmployeeResponse {
   id: string;
   employeeCode: string;

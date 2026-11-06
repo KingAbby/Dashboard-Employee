@@ -17,7 +17,6 @@ export class Employee {
   @Column({ type: 'varchar', length: 150 })
   email!: string;
 
-  /** Tidak pernah ikut terambil kecuali diminta eksplisit (login). */
   @Column({ name: 'password_hash', type: 'varchar', length: 255, select: false })
   passwordHash!: string;
 

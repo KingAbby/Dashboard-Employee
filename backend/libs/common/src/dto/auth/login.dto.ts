@@ -1,6 +1,5 @@
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
-/** class-validator membaca decorator terakhir dulu; "wajib diisi" ditaruh paling akhir. */
 export class LoginDto {
   @MaxLength(150, { message: 'Email maksimal 150 karakter.' })
   @IsEmail({}, { message: 'Format email tidak valid.' })

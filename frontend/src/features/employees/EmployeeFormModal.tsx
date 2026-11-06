@@ -89,7 +89,6 @@ interface EmployeeFormProps {
   onClose: () => void;
 }
 
-/** Dipisah dan diberi key agar nilai awal form dihitung sekali per karyawan. */
 function EmployeeForm({ employee, onClose }: EmployeeFormProps) {
   const isEdit = Boolean(employee);
   const { toast } = useToast();

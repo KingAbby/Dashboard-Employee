@@ -1,4 +1,3 @@
-/** Pattern TCP dipakai gateway & service agar string tidak tersebar. */
 export const MESSAGE_PATTERNS = {
   PING: 'ping',
 

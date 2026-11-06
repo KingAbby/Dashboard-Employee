@@ -3,10 +3,6 @@ import { RpcException } from '@nestjs/microservices';
 import { throwError } from 'rxjs';
 import { toRpcErrorPayload } from '../errors/rpc-error';
 
-/**
- * Nest membuang status HttpException saat error menyeberang TCP; filter ini
- * mengemas ulang menjadi payload RpcException agar gateway tahu status HTTP.
- */
 @Catch()
 export class RpcExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(RpcExceptionsFilter.name);

@@ -3,10 +3,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { photoContentMatches } from './photo-storage';
 
-/**
- * MIME dari klien tidak dipercaya; isi file dicek lewat tanda tangan.
- * Test ini menjaga agar file non-gambar tidak bisa lolos sebagai foto absensi.
- */
 describe('photoContentMatches', () => {
   const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
   const jpeg = Buffer.from([

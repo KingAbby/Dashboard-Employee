@@ -17,7 +17,6 @@ import { firstValueFrom } from 'rxjs';
 import { ATTENDANCE_CLIENT } from '../clients/clients.module';
 import { EmployeesService } from '../employees/employees.service';
 
-/** Data karyawan minimal untuk monitoring (tanpa email/telepon). */
 const toEmployeeSummary = (employee?: EmployeeResponse): AttendanceEmployeeSummary | null =>
   employee
     ? {
@@ -70,7 +69,6 @@ export class AttendanceService {
     });
   }
 
-  /** Gabungkan absensi dengan nama karyawan lewat satu panggilan identity. */
   async list(query: ListAttendancesQueryDto): Promise<Paginated<AdminAttendanceResponse>> {
     const search = query.search?.trim();
     let matchIds: string[] | undefined;

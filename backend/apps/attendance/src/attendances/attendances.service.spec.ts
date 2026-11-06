@@ -46,7 +46,6 @@ const buildRepository = (queryBuilder?: ReturnType<typeof buildQueryBuilder>) =>
   return { repository: mock as unknown as Repository<Attendance>, mock };
 };
 
-/** Query builder rantai minimal untuk listAll() dan summary(). */
 const buildQueryBuilder = (rows: Attendance[], total: number) => {
   const qb = {
     where: jest.fn(() => qb),

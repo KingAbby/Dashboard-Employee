@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/** Selaraskan jam tampilan dengan server; server tetap sumber kebenaran. */
 export const useServerClock = (serverTime: string | undefined): Date => {
   const [offsetMs, setOffsetMs] = useState(0);
   const [now, setNow] = useState(() => Date.now());

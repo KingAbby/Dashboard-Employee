@@ -1,7 +1,5 @@
 import { deflateSync } from 'node:zlib';
 
-/** PNG gradient tanpa dependency, hanya untuk foto contoh seed. */
-
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n += 1) {

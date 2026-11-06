@@ -6,7 +6,6 @@ import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { ALLOWED_PHOTO_MIME, ensureAttendancePhotoDirectory } from './photo-storage';
 
-/** Nama file diganti UUID dan hanya format gambar yang diterima. */
 export const createAttendanceUploadOptions = (
   uploadDir: string,
   maxSizeMb: number,

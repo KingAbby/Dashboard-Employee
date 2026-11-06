@@ -58,7 +58,6 @@ export class EmployeesController {
     return this.employeesService.update(params.id, dto, user.id);
   }
 
-  /** Soft delete: hanya menonaktifkan akun, data tetap tersimpan. */
   @Delete(':id')
   deactivate(@Param() params: IdParamDto, @CurrentUser() user: AuthUser) {
     return this.employeesService.deactivate(params.id, user.id);

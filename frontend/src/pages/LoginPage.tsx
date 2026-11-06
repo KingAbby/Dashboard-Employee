@@ -86,7 +86,6 @@ export function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.08fr_1fr]">
       <section className="relative hidden flex-col overflow-hidden border-r border-line bg-surface px-12 py-10 lg:flex">
-        {/* Latar dekoratif: grid halus, glow, dan mark samar. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-70"

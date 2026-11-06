@@ -1,7 +1,3 @@
-/**
- * Foto dikompres di browser supaya upload tetap kecil dan tidak membebani
- * server; file asli yang lebih kecil dari hasil kompres tetap dipakai.
- */
 export const MAX_PHOTO_MB = 2;
 export const MAX_INPUT_MB = 20;
 

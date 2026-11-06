@@ -5,7 +5,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 export const IDENTITY_CLIENT = 'IDENTITY_CLIENT';
 export const ATTENDANCE_CLIENT = 'ATTENDANCE_CLIENT';
 
-/** Koneksi TCP gateway ke service internal; tidak ada akses dari luar. */
 @Global()
 @Module({
   imports: [

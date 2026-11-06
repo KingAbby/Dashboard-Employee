@@ -18,7 +18,6 @@ const LABEL_FALLBACK: Record<AttendancePhotoType, string> = {
   out: 'Foto absen pulang',
 };
 
-/** Foto tidak publik: diambil sebagai blob ber-Bearer untuk admin dan riwayat. */
 export function AttendancePhoto({
   attendanceId,
   type,

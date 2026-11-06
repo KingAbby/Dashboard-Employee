@@ -29,7 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  /** Profil diambil ulang tiap request agar akun nonaktif langsung kehilangan akses. */
   async validate(payload: JwtPayload): Promise<AuthUser> {
     let employee: EmployeeResponse;
 

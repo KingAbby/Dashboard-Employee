@@ -6,12 +6,10 @@ export class Attendance {
   @PrimaryColumn({ type: 'char', length: 36 })
   id!: string;
 
-  /** Referensi biasa ke hr_identity.employees, tanpa foreign key lintas database. */
   @Index('idx_attendances_employee')
   @Column({ name: 'employee_id', type: 'char', length: 36 })
   employeeId!: string;
 
-  /** Tanggal lokal Asia/Jakarta, bukan hasil konversi UTC dari klien. */
   @Index('idx_attendances_date')
   @Column({ name: 'attendance_date', type: 'date' })
   attendanceDate!: string;
