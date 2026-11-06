@@ -71,7 +71,7 @@ npm install
 npm --prefix backend install
 npm --prefix frontend install
 
-# 2. MySQL
+# 2. MySQL - Make sure docker is running
 npm run db:up         # docker compose up -d
 
 # 3. Environment
