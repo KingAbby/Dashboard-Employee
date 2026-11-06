@@ -184,7 +184,7 @@ export function AbsenPage() {
 
                 <Textarea
                   label="Catatan (opsional)"
-                  placeholder="Mis. bekerja dari rumah"
+                  placeholder="Contoh: bekerja dari rumah"
                   value={note}
                   maxLength={255}
                   onChange={(event) => setNote(event.target.value)}
