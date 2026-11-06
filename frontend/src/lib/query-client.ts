@@ -7,8 +7,6 @@ export const queryClient = new QueryClient({
       staleTime: 0,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      // Jangan tunda request saat browser melaporkan offline: biarkan gagal
-      // dan tampilkan error, bukan state "kosong" yang menyesatkan.
       networkMode: 'always',
     },
     mutations: {

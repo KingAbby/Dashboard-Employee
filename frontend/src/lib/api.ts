@@ -22,7 +22,6 @@ api.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const url = error.config?.url ?? '';
-      // Login yang gagal juga 401, jadi jangan sampai memicu "sesi berakhir".
       if (status === 401 && !url.includes('/auth/login')) notifySessionExpired();
     }
     return Promise.reject(error);

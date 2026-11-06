@@ -138,7 +138,6 @@ describe('POST /api/auth/login (e2e)', () => {
     });
     expect(response.body.user).not.toHaveProperty('passwordHash');
 
-    // Token yang diterbitkan gateway harus memuat sub dan role yang benar.
     const payload = await jwt.verifyAsync<{ sub: string; role: string; email: string }>(
       response.body.accessToken,
     );

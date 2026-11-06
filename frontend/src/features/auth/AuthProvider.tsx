@@ -23,7 +23,6 @@ const toAuthUser = (user: LoginResponse['user']): AuthUser => ({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
-  // Sinkronkan state dengan localStorage: token bisa dibersihkan interceptor.
   useEffect(() => {
     const sync = () => setUser(getStoredUser());
     window.addEventListener(SESSION_CHANGED_EVENT, sync);
@@ -36,8 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Validasi token sekali saat aplikasi dibuka, supaya token kedaluwarsa
-  // atau akun yang dinonaktifkan langsung terlempar ke halaman login.
   useEffect(() => {
     const token = getToken();
     if (!token) return;

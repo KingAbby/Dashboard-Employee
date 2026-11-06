@@ -37,7 +37,6 @@ const buildRepository = (queryBuilder?: ReturnType<typeof buildQueryBuilder>) =>
   const mock = {
     findOne: jest.fn<() => Promise<Attendance | null>>(async () => null),
     save: jest.fn<(entity: Attendance) => Promise<Attendance>>(async (entity) => entity),
-    // TypeORM mengisi createdAt/updatedAt saat save; di test diisi default fixture.
     create: jest.fn<(input: Partial<Attendance>) => Attendance>((input) => buildAttendance(input)),
     count: jest.fn<(options?: unknown) => Promise<number>>(async () => 0),
     createQueryBuilder: jest.fn(() => queryBuilder),
@@ -99,7 +98,6 @@ describe('AttendancesService', () => {
     });
 
     it('memakai tanggal Asia/Jakarta, bukan UTC', async () => {
-      // 2026-11-04 23:30 UTC = 2026-11-05 06:30 WIB
       jest.setSystemTime(new Date('2026-11-04T23:30:00.000Z'));
       const { repository, mock } = buildRepository();
       const service = new AttendancesService(repository, buildConfig());
@@ -257,7 +255,6 @@ describe('AttendancesService', () => {
 
   describe('summary', () => {
     it('menghitung hadir, terlambat, dan sudah pulang untuk tanggal WIB hari ini', async () => {
-      // 2026-11-04 02:00 UTC = 09:00 WIB
       jest.setSystemTime(new Date('2026-11-04T02:00:00.000Z'));
       const qb = buildQueryBuilder([], 3);
       const { repository, mock } = buildRepository(qb);

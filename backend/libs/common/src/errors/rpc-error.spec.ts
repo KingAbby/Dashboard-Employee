@@ -4,7 +4,6 @@ import { AppRpcException, httpStatusText, toRpcErrorPayload } from './rpc-error'
 
 describe('toRpcErrorPayload', () => {
   it('membaca payload yang dibungkus transport TCP', () => {
-    // Bentuk yang benar-benar diterima gateway dari service lewat TCP.
     const fromTransport = {
       error: {
         statusCode: 401,

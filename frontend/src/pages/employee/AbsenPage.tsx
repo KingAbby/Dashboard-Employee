@@ -39,7 +39,6 @@ export function AbsenPage() {
   const [note, setNote] = useState('');
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  // Dipakai untuk mereset pratinjau PhotoCapture setelah submit berhasil.
   const [formKey, setFormKey] = useState(0);
 
   const submitting = checkIn.isPending || checkOut.isPending;
