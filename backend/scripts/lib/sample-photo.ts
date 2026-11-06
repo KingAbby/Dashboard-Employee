@@ -1,10 +1,6 @@
 import { deflateSync } from 'node:zlib';
 
-/**
- * Membuat PNG gradient sederhana tanpa dependensi gambar tambahan.
- * Dipakai hanya untuk foto contoh di data seed, supaya modal pratinjau
- * admin punya file yang benar-benar bisa dibuka.
- */
+/** PNG gradient tanpa dependency, hanya untuk foto contoh seed. */
 
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
@@ -47,18 +43,18 @@ export const createSamplePng = (width: number, height: number, color: RgbColor):
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 2; // color type: truecolor RGB
-  ihdr[10] = 0; // compression
-  ihdr[11] = 0; // filter
-  ihdr[12] = 0; // interlace
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  ihdr[10] = 0;
+  ihdr[11] = 0;
+  ihdr[12] = 0;
 
   const bytesPerRow = width * 3 + 1;
   const raw = Buffer.alloc(bytesPerRow * height);
 
   for (let y = 0; y < height; y += 1) {
     const rowStart = y * bytesPerRow;
-    raw[rowStart] = 0; // filter type none
+    raw[rowStart] = 0;
     for (let x = 0; x < width; x += 1) {
       const pixel = rowStart + 1 + x * 3;
       const shade = 0.65 + 0.35 * (1 - y / height);

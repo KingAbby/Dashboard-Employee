@@ -26,6 +26,7 @@ import {
   useEmployeesQuery,
 } from '../../features/employees/api';
 import { toErrorMessage } from '../../lib/api';
+import { useMinimumLoading } from '../../lib/use-min-loading';
 import { cn } from '../../lib/cn';
 import { formatDate } from '../../lib/format';
 import type { Employee } from '../../types/api';
@@ -96,6 +97,7 @@ export function KaryawanPage() {
     }
   };
 
+  const showBusy = useMinimumLoading(listQuery.isFetching && !listQuery.isLoading);
   const isFiltering = search.length > 0 || status !== 'all';
 
   const columns = useMemo<Column<Employee>[]>(
@@ -145,7 +147,7 @@ export function KaryawanPage() {
             <Badge tone={row.isActive ? 'success' : 'neutral'} dot>
               {row.isActive ? 'Aktif' : 'Nonaktif'}
             </Badge>
-            <p className="mt-1 text-[11px] text-subtle">{ROLE_LABEL[row.role]}</p>
+            <p className="mt-1 text-[11px] text-muted">{ROLE_LABEL[row.role]}</p>
           </div>
         ),
       },
@@ -160,7 +162,7 @@ export function KaryawanPage() {
               onClick={() => openEdit(row)}
               aria-label={`Ubah data ${row.fullName}`}
               title="Ubah data"
-              className="rounded-md border border-transparent p-1.5 text-muted transition-colors hover:border-line hover:bg-bg hover:text-ink"
+              className="rounded-md cursor-pointer border border-transparent p-1.5 text-muted transition-colors hover:border-line hover:bg-bg hover:text-ink"
             >
               <PencilIcon size={14} />
             </button>
@@ -170,7 +172,7 @@ export function KaryawanPage() {
               disabled={!row.isActive}
               aria-label={`Nonaktifkan ${row.fullName}`}
               title={row.isActive ? 'Nonaktifkan' : 'Sudah nonaktif'}
-              className="rounded-md border border-transparent p-1.5 text-muted transition-colors hover:border-danger/30 hover:bg-danger-tint hover:text-danger disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-subtle"
+              className="rounded-md cursor-pointer border border-transparent p-1.5 text-muted transition-colors hover:border-danger/30 hover:bg-danger-tint hover:text-danger disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-transparent disabled:hover:bg-transparent disabled:hover:text-subtle"
             >
               <PowerIcon size={14} />
             </button>
@@ -229,12 +231,23 @@ export function KaryawanPage() {
               placeholder="Cari nama, kode, atau email…"
               aria-label="Cari karyawan"
               icon={<SearchIcon size={15} />}
+              trailing={
+                showBusy ? (
+                  <RefreshIcon size={14} className="animate-spin text-primary" />
+                ) : undefined
+              }
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </div>
 
           <div className="flex items-center gap-2">
+            {showBusy ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-tint px-2.5 py-1 text-[11px] font-semibold text-primary">
+                <RefreshIcon size={12} className="animate-spin" />
+                Memperbarui…
+              </span>
+            ) : null}
             <div
               role="group"
               aria-label="Filter status karyawan"
@@ -253,7 +266,9 @@ export function KaryawanPage() {
                     }}
                     className={cn(
                       'h-full rounded-[7px] px-3 text-[11px] font-semibold transition-colors',
-                      active ? 'bg-primary-tint text-ink' : 'text-muted hover:text-ink',
+                      active
+                        ? 'bg-primary-tint font-bold text-primary'
+                        : 'text-muted hover:text-ink',
                     )}
                   >
                     {filter.label}
@@ -267,12 +282,12 @@ export function KaryawanPage() {
               onClick={() => void listQuery.refetch()}
               aria-label="Muat ulang data"
               title="Muat ulang"
-              className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-[9px] border border-line text-muted transition-colors hover:bg-bg hover:text-ink',
-                listQuery.isFetching && 'animate-spin text-primary',
-              )}
+              className="flex h-10 w-10 items-center justify-center rounded-[9px] border border-line text-muted transition-colors hover:bg-bg hover:text-ink"
             >
-              <RefreshIcon size={14} />
+              <RefreshIcon
+                size={14}
+                className={showBusy ? 'animate-spin text-primary' : undefined}
+              />
             </button>
           </div>
         </div>
@@ -283,6 +298,7 @@ export function KaryawanPage() {
           rows={listQuery.data?.data ?? []}
           rowKey={(row) => row.id}
           loading={listQuery.isLoading}
+          fetching={showBusy}
           error={listQuery.isError ? toErrorMessage(listQuery.error) : null}
           onRetry={() => void listQuery.refetch()}
           meta={listQuery.data?.meta}

@@ -8,7 +8,7 @@ Dokumen ini adalah instruksi kerja untuk AI coding agent. Baca seluruhnya sebelu
 
 1. Ini **satu web app dengan dua role** (`EMPLOYEE` dan `ADMIN_HRD`), bukan dua aplikasi terpisah.
 2. Ini **monorepo satu folder**: frontend dan backend berada di repo yang sama.
-3. Baca `design.md` di root repo sebelum membuat UI. Pakai sebagai **patokan gaya**, bukan template yang disalin (lihat bagian 8).
+3. Baca bagian 8 untuk patokan gaya; token warna/spacing yang dipakai ada di `frontend/src/index.css` (dokumen `design.md` lama sudah dihapus setelah implementasi).
 4. Tooling harus **gratis** dan bisa dijalankan lokal tanpa akun berbayar.
 5. Waktu pengerjaan target 3–4 hari, maksimal 5 hari. Jangan menambah fitur di luar scope. Kalau ada hal yang ambigu, pilih opsi paling sederhana, catat di `README.md` bagian "Keputusan", lalu lanjut.
 6. Semua kode dalam TypeScript (`strict: true`). Nama identifier, endpoint, dan kolom database memakai bahasa Inggris. Teks yang tampil ke pengguna memakai bahasa Indonesia.
@@ -232,9 +232,9 @@ Buat sendiri di `frontend/src/components/ui/`, dengan props bertipe dan dipakai 
 
 ---
 
-## 8. Panduan Desain (merujuk `design.md`)
+## 8. Panduan Desain
 
-Baca `design.md` di root. Pakai sebagai **patokan arah**, bukan untuk ditiru persis.
+`design.md` lama sudah dihapus setelah UI selesai dibangun; nilai warna, radius, dan spacing yang dipakai ada di `@theme` pada `frontend/src/index.css`. Panduan di bawah ini masih berlaku sebagai arah gaya.
 
 **Ambil dari `design.md`:**
 - Karakter keseluruhan: bersih, profesional, hangat; latar putih/abu sangat muda dengan satu warna aksen oranye terakota.

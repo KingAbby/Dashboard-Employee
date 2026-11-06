@@ -17,6 +17,7 @@ export interface DataTableProps<T> {
   rowKey: (row: T) => string;
   caption: string;
   loading?: boolean;
+  fetching?: boolean;
   error?: string | null;
   onRetry?: () => void;
   emptyTitle: string;
@@ -35,6 +36,7 @@ export function DataTable<T>({
   rowKey,
   caption,
   loading = false,
+  fetching = false,
   error = null,
   onRetry,
   emptyTitle,
@@ -48,7 +50,15 @@ export function DataTable<T>({
   const to = meta ? Math.min(meta.page * meta.limit, meta.total) : 0;
 
   return (
-    <div className="card-surface overflow-hidden">
+    <div className="card-surface relative overflow-hidden" aria-busy={loading || fetching}>
+      {fetching && !loading && !error ? (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center bg-surface/50 pt-16 backdrop-blur-[1px]">
+          <span className="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] font-semibold text-primary shadow-sm">
+            <RefreshIcon size={13} className="animate-spin" />
+            Memperbarui data…
+          </span>
+        </div>
+      ) : null}
       {error ? (
         <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-danger-tint text-danger">
@@ -59,7 +69,12 @@ export function DataTable<T>({
             <p className="mt-1 max-w-sm text-[12px] text-muted">{error}</p>
           </div>
           {onRetry ? (
-            <Button variant="secondary" size="sm" onClick={onRetry} icon={<RefreshIcon size={13} />}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onRetry}
+              icon={<RefreshIcon size={13} />}
+            >
               Coba lagi
             </Button>
           ) : null}
@@ -74,7 +89,10 @@ export function DataTable<T>({
                   <th
                     key={column.header}
                     scope="col"
-                    className={cn('label-caps whitespace-nowrap px-5 py-3 text-subtle', column.headerClassName)}
+                    className={cn(
+                      'label-caps whitespace-nowrap px-5 py-3 text-subtle',
+                      column.headerClassName,
+                    )}
                   >
                     {column.header}
                   </th>
@@ -105,7 +123,10 @@ export function DataTable<T>({
                       {columns.map((column) => (
                         <td
                           key={column.header}
-                          className={cn('px-5 py-3.5 align-middle text-[13px] text-ink', column.className)}
+                          className={cn(
+                            'px-5 py-3.5 align-middle text-[13px] text-ink',
+                            column.className,
+                          )}
                         >
                           {column.cell(row)}
                         </td>

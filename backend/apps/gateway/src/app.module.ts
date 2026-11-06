@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import type { SignOptions } from 'jsonwebtoken';
 import { AuthModule } from './auth/auth.module';
+import { AttendanceModule } from './attendance/attendance.module';
 import { ClientsModuleConfig } from './clients/clients.module';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
@@ -15,17 +16,22 @@ import { HealthModule } from './health/health.module';
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') ?? 'dev_secret_change_me',
-        signOptions: {
-          expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '8h') as SignOptions['expiresIn'],
-        },
-      }),
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) throw new Error('JWT_SECRET belum diatur di .env');
+        return {
+          secret,
+          signOptions: {
+            expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '8h') as SignOptions['expiresIn'],
+          },
+        };
+      },
     }),
     ClientsModuleConfig,
     HealthModule,
     AuthModule,
     EmployeesModule,
+    AttendanceModule,
   ],
 })
 export class AppModule {}

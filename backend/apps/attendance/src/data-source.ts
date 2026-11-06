@@ -3,10 +3,7 @@ import { DataSource } from 'typeorm';
 import { Attendance } from './attendances/entities/attendance.entity';
 import { CreateAttendances1762300000100 } from './migrations/1762300000100-create-attendances';
 
-/**
- * DataSource khusus tooling (migration & seed). Service memakai koneksi
- * yang dirakit lewat TypeOrmModule di attendance.module.ts.
- */
+/** DataSource khusus migration & seed; service memakai TypeOrmModule. */
 export const attendanceDataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST ?? 'localhost',

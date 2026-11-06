@@ -1,11 +1,11 @@
 import {
+  CreateEmployeePayload,
+  DeactivateEmployeePayload,
+  GetEmployeePayload,
+  IdsPayload,
+  ListEmployeesQueryDto,
   MESSAGE_PATTERNS,
-  type CreateEmployeePayload,
-  type DeactivateEmployeePayload,
-  type GetEmployeePayload,
-  type IdsPayload,
-  type ListEmployeesQueryDto,
-  type UpdateEmployeePayload,
+  UpdateEmployeePayload,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -28,6 +28,11 @@ export class EmployeesController {
   @MessagePattern(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_GET)
   get(@Payload() payload: GetEmployeePayload) {
     return this.employeesService.findOne(payload.id);
+  }
+
+  @MessagePattern(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_NEXT_CODE)
+  nextCode() {
+    return this.employeesService.nextCode();
   }
 
   @MessagePattern(MESSAGE_PATTERNS.IDENTITY_EMPLOYEE_CREATE)

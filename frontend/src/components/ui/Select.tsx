@@ -6,7 +6,16 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement>, Fi
   children: ReactNode;
 }
 
-export function Select({ label, hint, error, required, className, id, children, ...rest }: SelectProps) {
+export function Select({
+  label,
+  hint,
+  error,
+  required,
+  className,
+  id,
+  children,
+  ...rest
+}: SelectProps) {
   const generatedId = useId();
   const selectId = id ?? generatedId;
   const describedBy = error ? `${selectId}-error` : hint ? `${selectId}-hint` : undefined;
@@ -26,10 +35,7 @@ export function Select({ label, hint, error, required, className, id, children, 
           required={required}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className={cn(
-            'input-base h-10 appearance-none pr-9',
-            error && 'input-error',
-          )}
+          className={cn('input-base h-10 appearance-none pr-9', error && 'input-error')}
           {...rest}
         >
           {children}

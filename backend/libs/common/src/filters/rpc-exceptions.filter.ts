@@ -4,12 +4,8 @@ import { throwError } from 'rxjs';
 import { toRpcErrorPayload } from '../errors/rpc-error';
 
 /**
- * Filter global untuk service TCP.
- *
- * Nest mengubah HttpException dari ValidationPipe menjadi pesan generik saat
- * keluar lewat transport TCP, sehingga status code aslinya hilang. Filter ini
- * mengemas ulang error tersebut menjadi payload RpcException yang bisa dibaca
- * gateway untuk menentukan status HTTP.
+ * Nest membuang status HttpException saat error menyeberang TCP; filter ini
+ * mengemas ulang menjadi payload RpcException agar gateway tahu status HTTP.
  */
 @Catch()
 export class RpcExceptionsFilter implements ExceptionFilter {

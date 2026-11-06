@@ -37,9 +37,9 @@ export class EmployeesService {
     await this.assertEmailAvailable(email);
     await this.assertCodeAvailable(dto.employeeCode);
 
-    const employee = this.employees.create({
+    const manualCode = dto.employeeCode?.trim();
+    const base = {
       id: randomUUID(),
-      employeeCode: dto.employeeCode?.trim() || (await this.generateEmployeeCode()),
       fullName: dto.fullName.trim(),
       email,
       passwordHash: await hashPassword(dto.password),
@@ -49,11 +49,28 @@ export class EmployeesService {
       phone: emptyToNull(dto.phone),
       joinDate: emptyToNull(dto.joinDate),
       isActive: dto.isActive ?? true,
-    });
+    };
 
-    const saved = await this.employees.save(employee);
-    this.logger.log(`Karyawan dibuat: ${saved.employeeCode}`);
-    return toEmployeeResponse(saved);
+    let nextAttempt = 1;
+    for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt += 1) {
+      const employeeCode = manualCode ?? (await this.generateEmployeeCode(nextAttempt));
+      try {
+        const saved = await this.employees.save(this.employees.create({ ...base, employeeCode }));
+        this.logger.log(`Karyawan dibuat: ${saved.employeeCode}`);
+        return toEmployeeResponse(saved);
+      } catch (error) {
+        const duplicate = this.duplicateTarget(error);
+        if (duplicate === 'email') {
+          throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_EMAIL_TAKEN);
+        }
+        if (duplicate !== 'code') throw error;
+        if (manualCode) throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CODE_TAKEN);
+        nextAttempt = this.codeNumber(employeeCode) + 1;
+      }
+    }
+    throw AppRpcException.conflict(
+      'Kode karyawan sedang dibuat admin lain. Coba simpan lagi sebentar lagi.',
+    );
   }
 
   async findAll(query: ListEmployeesQueryDto): Promise<Paginated<EmployeeResponse>> {
@@ -115,6 +132,9 @@ export class EmployeesService {
     if (dto.isActive === false && actorId === id) {
       throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_DEACTIVATE_SELF);
     }
+    if (dto.role !== undefined && dto.role !== employee.role && actorId === id) {
+      throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_CHANGE_OWN_ROLE);
+    }
 
     if (dto.email && dto.email.trim().toLowerCase() !== employee.email) {
       const email = dto.email.trim().toLowerCase();
@@ -122,10 +142,12 @@ export class EmployeesService {
       employee.email = email;
     }
 
-    if (dto.employeeCode && dto.employeeCode.trim() !== employee.employeeCode) {
+    if (dto.employeeCode !== undefined) {
       const code = dto.employeeCode.trim();
-      await this.assertCodeAvailable(code, id);
-      employee.employeeCode = code;
+      if (code && code !== employee.employeeCode) {
+        await this.assertCodeAvailable(code, id);
+        employee.employeeCode = code;
+      }
     }
 
     if (dto.fullName !== undefined) employee.fullName = dto.fullName.trim();
@@ -137,11 +159,19 @@ export class EmployeesService {
     if (dto.isActive !== undefined) employee.isActive = dto.isActive;
     if (dto.password) employee.passwordHash = await hashPassword(dto.password);
 
-    const saved = await this.employees.save(employee);
+    let saved: Employee;
+    try {
+      saved = await this.employees.save(employee);
+    } catch (error) {
+      const duplicate = this.duplicateTarget(error);
+      if (duplicate === 'code') throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CODE_TAKEN);
+      if (duplicate === 'email')
+        throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_EMAIL_TAKEN);
+      throw error;
+    }
     return toEmployeeResponse(saved);
   }
 
-  /** Soft delete: baris tetap ada karena riwayat absensi harus bisa ditelusuri. */
   async deactivate(id: string, actorId?: string): Promise<EmployeeResponse> {
     if (actorId === id) {
       throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CANNOT_DEACTIVATE_SELF);
@@ -174,13 +204,34 @@ export class EmployeesService {
     if (total > 0) throw AppRpcException.conflict(ERROR_MESSAGES.EMPLOYEE_CODE_TAKEN);
   }
 
-  /** EMP-0001, EMP-0002, ... Melewati nomor yang sudah terpakai. */
-  private async generateEmployeeCode(): Promise<string> {
-    for (let attempt = 1; attempt <= 9999; attempt += 1) {
+  /** Hanya pratinjau: kode final tetap dibuat saat create. */
+  nextCode(): Promise<{ employeeCode: string }> {
+    return this.generateEmployeeCode().then((employeeCode) => ({ employeeCode }));
+  }
+
+  private async generateEmployeeCode(startAt = 1): Promise<string> {
+    for (let attempt = startAt; attempt <= 9999; attempt += 1) {
       const code = `EMP-${String(attempt).padStart(4, '0')}`;
       const exists = await this.employees.count({ where: { employeeCode: code } });
       if (exists === 0) return code;
     }
     throw AppRpcException.internal('Tidak bisa membuat kode karyawan baru.');
   }
+
+  private codeNumber(code: string): number {
+    return Number.parseInt(code.replace(/\D/g, ''), 10) || 0;
+  }
+
+  /** Unique index tetap penjaga terakhir saat dua request berjalan bersamaan. */
+  private duplicateTarget(error: unknown): 'code' | 'email' | null {
+    const driver = (error as { driverError?: { code?: string; message?: string } }).driverError;
+    const message = driver?.message ?? (error instanceof Error ? error.message : '');
+    const isDuplicate = driver?.code === 'ER_DUP_ENTRY' || message.includes('Duplicate entry');
+    if (!isDuplicate) return null;
+    if (message.includes('uq_employees_employee_code')) return 'code';
+    if (message.includes('uq_employees_email')) return 'email';
+    return null;
+  }
 }
+
+const MAX_CODE_ATTEMPTS = 5;

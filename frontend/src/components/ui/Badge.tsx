@@ -32,12 +32,14 @@ export function Badge({ tone = 'neutral', dot = false, children, className }: Ba
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em]',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em]',
         TONES[tone],
         className,
       )}
     >
-      {dot ? <span className={cn('h-1.5 w-1.5 rounded-full', DOTS[tone])} aria-hidden="true" /> : null}
+      {dot ? (
+        <span className={cn('h-1.5 w-1.5 rounded-full', DOTS[tone])} aria-hidden="true" />
+      ) : null}
       {children}
     </span>
   );

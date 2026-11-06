@@ -6,9 +6,12 @@ export function NotFoundPage() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-5 px-6 text-center">
       <span className="label-caps text-primary">404</span>
       <div>
-        <h1 className="text-[28px] font-bold tracking-[-0.03em] text-ink">Halaman tidak ditemukan</h1>
+        <h1 className="text-[28px] font-bold tracking-[-0.03em] text-ink">
+          Halaman tidak ditemukan
+        </h1>
         <p className="mt-2 max-w-md text-[13px] text-muted">
-          Alamat yang Anda buka tidak ada di {BRAND.name}. Kembali ke halaman awal sesuai peran akun Anda.
+          Alamat yang Anda buka tidak ada di {BRAND.name}. Kembali ke halaman awal sesuai peran akun
+          Anda.
         </p>
       </div>
       <Link

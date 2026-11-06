@@ -1,19 +1,22 @@
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
+  IsDateString,
   IsEmail,
   IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { DEPARTMENTS } from '../../constants/departments';
 import { Role } from '../../enums/role.enum';
 
-/** Semua field opsional: PATCH hanya mengubah yang dikirim. */
 export class UpdateEmployeeDto {
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Matches(/^[A-Za-z0-9-]*$/, {
     message: 'Kode karyawan hanya boleh huruf, angka, dan tanda hubung.',
   })
@@ -22,6 +25,7 @@ export class UpdateEmployeeDto {
   employeeCode?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @MaxLength(120, { message: 'Nama lengkap maksimal 120 karakter.' })
   @MinLength(2, { message: 'Nama lengkap minimal 2 karakter.' })
   @IsString({ message: 'Nama lengkap wajib diisi.' })
@@ -48,6 +52,7 @@ export class UpdateEmployeeDto {
   position?: string;
 
   @IsOptional()
+  @IsIn(DEPARTMENTS, { message: 'Divisi tidak dikenal.' })
   @MaxLength(100, { message: 'Divisi maksimal 100 karakter.' })
   @IsString({ message: 'Divisi harus berupa teks.' })
   department?: string;
@@ -59,6 +64,7 @@ export class UpdateEmployeeDto {
   phone?: string;
 
   @IsOptional()
+  @IsDateString({ strict: true }, { message: 'Tanggal masuk tidak valid.' })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Tanggal masuk harus berformat YYYY-MM-DD.' })
   joinDate?: string;
 

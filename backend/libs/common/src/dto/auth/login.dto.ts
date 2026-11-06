@@ -1,9 +1,6 @@
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
-/**
- * Urutan decorator menentukan urutan pesan (class-validator memeriksa dari
- * yang terakhir ditulis), jadi cek "wajib diisi" ditaruh paling akhir.
- */
+/** class-validator membaca decorator terakhir dulu; "wajib diisi" ditaruh paling akhir. */
 export class LoginDto {
   @MaxLength(150, { message: 'Email maksimal 150 karakter.' })
   @IsEmail({}, { message: 'Format email tidak valid.' })

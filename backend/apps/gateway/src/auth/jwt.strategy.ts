@@ -19,17 +19,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     config: ConfigService,
     @Inject(IDENTITY_CLIENT) private readonly identity: ClientProxy,
   ) {
+    const secret = config.get<string>('JWT_SECRET');
+    if (!secret) throw new Error('JWT_SECRET belum diatur di .env');
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') ?? 'dev_secret_change_me',
+      secretOrKey: secret,
     });
   }
 
-  /**
-   * Profil diambil ulang dari identity setiap request, supaya akun yang
-   * dinonaktifkan langsung kehilangan akses walau tokennya belum kedaluwarsa.
-   */
+  /** Profil diambil ulang tiap request agar akun nonaktif langsung kehilangan akses. */
   async validate(payload: JwtPayload): Promise<AuthUser> {
     let employee: EmployeeResponse;
 

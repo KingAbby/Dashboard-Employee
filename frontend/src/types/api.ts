@@ -40,6 +40,77 @@ export interface LoginResponse {
   user: Employee;
 }
 
+export interface NextEmployeeCode {
+  employeeCode: string;
+}
+
+export type AttendanceStatus = 'ON_TIME' | 'LATE';
+export type AttendancePhotoType = 'in' | 'out';
+
+export interface Attendance {
+  id: string;
+  employeeId: string;
+  attendanceDate: string;
+  checkInAt: string;
+  checkInPhoto: string;
+  checkOutAt: string | null;
+  checkOutPhoto: string | null;
+  status: AttendanceStatus;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TodayAttendance {
+  date: string;
+  serverTime: string;
+  workStartTime: string;
+  workEndTime: string;
+  lateToleranceMinutes: number;
+  attendance: Attendance | null;
+}
+
+export interface AttendanceQuery {
+  page: number;
+  limit: number;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+/** Potongan karyawan yang ikut di daftar absensi admin (tanpa kontak pribadi). */
+export interface AttendanceEmployee {
+  id: string;
+  employeeCode: string;
+  fullName: string;
+  position: string | null;
+  department: string | null;
+  isActive: boolean;
+}
+
+export interface AdminAttendance extends Attendance {
+  employee: AttendanceEmployee | null;
+}
+
+export interface AttendanceAdminQuery {
+  page: number;
+  limit: number;
+  dateFrom?: string;
+  dateTo?: string;
+  employeeId?: string;
+  search?: string;
+  status?: AttendanceStatus;
+}
+
+export interface AttendanceSummary {
+  date: string;
+  present: number;
+  onTime: number;
+  late: number;
+  checkedOut: number;
+  totalActiveEmployees: number;
+  notCheckedIn: number;
+}
+
 export interface ApiErrorBody {
   statusCode: number;
   error: string;

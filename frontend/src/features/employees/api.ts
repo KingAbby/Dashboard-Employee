@@ -1,12 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import type { Employee, EmployeePayload, EmployeeQuery, Paginated } from '../../types/api';
+import type {
+  Employee,
+  EmployeePayload,
+  EmployeeQuery,
+  NextEmployeeCode,
+  Paginated,
+} from '../../types/api';
 
 const EMPLOYEES_KEY = 'employees';
 
 export const employeeKeys = {
   list: (query: EmployeeQuery) => [EMPLOYEES_KEY, 'list', query] as const,
   count: (isActive?: boolean) => [EMPLOYEES_KEY, 'count', isActive ?? 'all'] as const,
+  nextCode: [EMPLOYEES_KEY, 'next-code'] as const,
 };
 
 export const fetchEmployees = async (query: EmployeeQuery): Promise<Paginated<Employee>> => {
@@ -37,6 +44,19 @@ export const useEmployeeCount = (isActive?: boolean) =>
       });
       return data.meta.total;
     },
+  });
+
+export const useNextEmployeeCode = (enabled = true) =>
+  useQuery({
+    queryKey: employeeKeys.nextCode,
+    queryFn: async () => {
+      const { data } = await api.get<NextEmployeeCode>('/employees/next-code');
+      return data;
+    },
+    enabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 
 export const useCreateEmployee = () => {

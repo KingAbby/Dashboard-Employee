@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -18,6 +18,7 @@ import { BRAND } from '../config/brand';
 import { useAuth } from '../features/auth/useAuth';
 import { homePathFor } from '../features/auth/paths';
 import { toErrorMessage } from '../lib/api';
+import { hasVisitedBefore, markVisited } from '../lib/session';
 
 const schema = z.object({
   email: z.string().min(1, 'Email wajib diisi.').email('Format email tidak valid.'),
@@ -26,54 +27,21 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const HIGHLIGHTS = [
-  {
-    index: '01',
-    title: 'Foto bukti, bukan sekadar centang',
-    body: 'Setiap absen masuk menyertakan foto dan waktu dari server, jadi tidak bisa diakali dari perangkat.',
-  },
-  {
-    index: '02',
-    title: 'Satu catatan per hari',
-    body: 'Absen ganda ditolak. Status tepat waktu atau terlambat dihitung otomatis dari jam masuk.',
-  },
-  {
-    index: '03',
-    title: 'HRD memantau tanpa mengubah',
-    body: 'Admin HRD melihat seluruh absensi beserta fotonya, tetapi tidak bisa mengedit riwayat karyawan.',
-  },
-];
-
-const FACTS = [
-  { label: 'Zona waktu', value: 'WIB · Asia/Jakarta' },
-  { label: 'Bukti absen', value: 'Foto wajib' },
-  { label: 'Pencatatan', value: 'Waktu dari server' },
-];
-
 const DEMO_ACCOUNTS = [
   { label: 'Admin HRD', email: 'admin@example.com', password: 'Admin123!' },
   { label: 'Karyawan', email: 'budi@example.com', password: 'Employee123!' },
 ];
 
 const BrandMark = () => (
-  <span className="flex items-center gap-2.5">
-    <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary-bright text-white shadow-[0_2px_8px_rgba(217,130,74,0.35)]">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="m5.5 12.5 4.2 4.2L18.5 7"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-    <span>
-      <span className="block text-[16px] font-extrabold leading-none tracking-[-0.02em] text-ink">
-        {BRAND.wordmark}
-      </span>
-      <span className="label-caps mt-1 block text-[8px] text-primary">{BRAND.tagline}</span>
-    </span>
+  <span className="flex flex-col gap-1">
+    <img
+      src={BRAND.logo}
+      alt={`${BRAND.name} — ${BRAND.tagline}`}
+      width={535}
+      height={128}
+      className="h-9 w-auto self-start"
+    />
+    <span className="label-caps block pl-0.5 text-[8px] text-primary">{BRAND.tagline}</span>
   </span>
 );
 
@@ -83,6 +51,11 @@ export function LoginPage() {
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [returning] = useState(() => hasVisitedBefore());
+
+  useEffect(() => {
+    markVisited();
+  }, []);
 
   const {
     register,
@@ -112,58 +85,55 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.08fr_1fr]">
-      <section className="relative hidden flex-col border-r border-line bg-surface px-12 py-10 lg:flex">
-        <BrandMark />
+      <section className="relative hidden flex-col overflow-hidden border-r border-line bg-surface px-12 py-10 lg:flex">
+        {/* Latar dekoratif: grid halus, glow, dan mark samar. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(10,43,76,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,43,76,0.05) 1px, transparent 1px)',
+            backgroundSize: '44px 44px',
+            maskImage: 'radial-gradient(ellipse at 32% 38%, black 15%, transparent 72%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at 32% 38%, black 15%, transparent 72%)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-28 -top-32 h-[420px] w-[420px] rounded-full bg-primary-soft/60 blur-3xl"
+        />
+        <img
+          src={BRAND.mark}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-16 -right-10 h-[340px] w-auto opacity-[0.045]"
+        />
 
-        <div className="flex flex-1 flex-col justify-center py-10">
-          <div className="w-full max-w-[520px]">
-            <p className="label-caps flex items-center gap-2 text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
-              Kehadiran tanpa kertas
-            </p>
+        <div className="relative">
+          <BrandMark />
+        </div>
 
-            <h1 className="mt-4 text-[40px] font-extrabold leading-[1.06] tracking-[-0.035em] text-ink">
-              Absensi WFH yang <span className="whitespace-nowrap text-primary">tercatat rapi</span>,{' '}
-              <span className="whitespace-nowrap">bukan tebak-tebakan</span>.
+        <div className="relative flex flex-1 flex-col justify-center py-10">
+          <div className="max-w-[460px]">
+            <span className="block h-px w-10 bg-primary/40" aria-hidden="true" />
+
+            <h1 className="mt-6 text-[44px] font-extrabold leading-[1.04] tracking-[-0.04em] text-ink">
+              Kehadiran yang <br />
+              <span className="text-primary">tercatat rapi.</span>
             </h1>
 
-            <p className="mt-5 text-[13.5px] leading-relaxed text-muted">
-              Satu portal untuk dua peran: karyawan absen dengan foto bukti, admin HRD memantau
-              kehadiran harian dari satu tabel yang sama.
+            <p className="mt-5 max-w-[400px] text-[13.5px] leading-relaxed text-muted">
+              Absen masuk dan pulang dalam satu portal.
             </p>
-
-            <ul className="mt-9 border-b border-line">
-              {HIGHLIGHTS.map((item) => (
-                <li key={item.index} className="border-t border-line py-4">
-                  <div className="flex items-baseline gap-3">
-                    <span className="label-caps text-[9.5px] text-subtle">{item.index}</span>
-                    <div>
-                      <p className="text-[13px] font-semibold text-ink">{item.title}</p>
-                      <p className="mt-1 text-[12px] leading-relaxed text-muted">{item.body}</p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
 
-        <div className="space-y-5">
-          <dl className="grid grid-cols-3 gap-4 border-t border-line pt-5">
-            {FACTS.map((fact) => (
-              <div key={fact.label}>
-                <dt className="label-caps text-[9px] text-subtle">{fact.label}</dt>
-                <dd className="mt-1 text-[12px] font-semibold text-ink">{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="text-[11px] text-subtle">
-            Hanya untuk karyawan terdaftar. Akun dibuat oleh admin HRD.
-          </p>
-        </div>
+        <p className="relative text-[11px] text-muted">
+          Akses khusus karyawan terdaftar. Akun dibuat oleh admin HRD.
+        </p>
       </section>
 
-      <section className="flex items-center justify-center px-5 py-12 sm:px-10">
+      <section className="flex items-start justify-center px-5 py-10 sm:px-10 lg:items-center lg:py-12">
         <div className="w-full max-w-[400px]">
           <div className="mb-8 lg:hidden">
             <BrandMark />
@@ -171,10 +141,12 @@ export function LoginPage() {
 
           <p className="label-caps text-subtle">Masuk portal</p>
           <h2 className="mt-2 text-[26px] font-bold leading-tight tracking-[-0.025em] text-ink">
-            Selamat datang kembali
+            {returning ? 'Selamat datang kembali' : 'Selamat datang'}
           </h2>
           <p className="mt-1.5 text-[13px] text-muted">
-            Gunakan email kantor yang diberikan admin HRD.
+            {returning
+              ? 'Gunakan email kantor yang diberikan admin HRD.'
+              : 'Masuk dengan email kantor dari admin HRD untuk mencatat kehadiran.'}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-7 space-y-4">
@@ -212,6 +184,7 @@ export function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
                   aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                  title={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
                   className="rounded-md p-1.5 text-subtle transition-colors hover:bg-surface-muted hover:text-ink"
                 >
                   {showPassword ? <EyeOffIcon size={15} /> : <EyeIcon size={15} />}
@@ -225,7 +198,7 @@ export function LoginPage() {
               fullWidth
               loading={isSubmitting}
               iconRight={<ArrowRightIcon size={14} />}
-              className="mt-2"
+              className="mt-2 cursor-pointer"
             >
               {isSubmitting ? 'Memeriksa…' : 'Masuk ke portal'}
             </Button>

@@ -22,10 +22,7 @@ const SIZES = {
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/**
- * Modal dengan fokus terkunci dan tutup lewat Esc, sesuai kebutuhan
- * aksesibilitas minimum di agent.md.
- */
+/** Fokus terkunci dan bisa ditutup dengan Esc. */
 export function Modal({
   open,
   onClose,
@@ -95,7 +92,7 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'w-full rounded-card border border-line bg-surface shadow-[0_24px_60px_rgba(26,26,26,0.18)]',
+          'w-full rounded-card border border-line bg-surface shadow-[0_24px_60px_rgba(28,29,31,0.18)]',
           SIZES[size],
         )}
       >

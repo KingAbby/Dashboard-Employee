@@ -3,33 +3,34 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Brand — satu warna aksen, dipakai hemat (lihat design.md).
-     Nilai teks dipekatkan dari #D9824A agar kontrasnya lolos WCAG AA
-     (oranye asli hanya 2.9:1 di atas putih). */
-  --color-primary: #b25f26;
-  --color-primary-strong: #9c5827;
-  --color-primary-bright: #d9824a;
-  --color-primary-tint: #fdf1e8;
+  /* Brand: navy sebagai warna utama, sky-blue hanya untuk aksen dekoratif.
+     Nilai teks dipilih agar lolos WCAG AA di atas putih dan #F4F6F8
+     (navy 14.4:1, red 4.9:1, sky tidak dipakai untuk teks). */
+  --color-primary: #0a2b4c;
+  --color-primary-strong: #071f38;
+  --color-primary-bright: #8ed1fc;
+  --color-primary-soft: #d9ecfa;
+  --color-primary-tint: #e9eff6;
 
   /* Netral */
-  --color-bg: #fafaf8;
+  --color-bg: #f4f6f8;
   --color-surface: #ffffff;
-  --color-surface-muted: #eef2f6;
-  --color-line: #e6e8ec;
-  --color-line-strong: #d7dbe2;
-  --color-ink: #1a1a1a;
-  --color-muted: #5f6672;
-  --color-subtle: #6f7480;
+  --color-surface-muted: #e8edf2;
+  --color-line: #dde4ec;
+  --color-line-strong: #c6d0dc;
+  --color-ink: #1c1d1f;
+  --color-muted: #4e5a68;
+  --color-subtle: #5f6b7a;
 
   /* Semantik — hanya untuk status dan angka. */
   --color-success: #0f7a4f;
   --color-success-tint: #ecfaf3;
   --color-warning: #8a5a00;
   --color-warning-tint: #fff8e5;
-  --color-info: #1f66b0;
-  --color-info-tint: #eaf3fc;
-  --color-danger: #c62f34;
-  --color-danger-tint: #fdecee;
+  --color-info: #1b6a9c;
+  --color-info-tint: #e8f4fd;
+  --color-danger: #d33426;
+  --color-danger-tint: #fdecea;
 
   --radius-btn: 8px;
   --radius-card: 12px;
@@ -101,6 +102,20 @@
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-primary-tint);
+  }
+
+  .input-base:disabled,
+  .input-base[readonly] {
+    background-color: var(--color-surface-muted);
+    color: var(--color-muted);
+    border-color: var(--color-line);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .input-base:disabled:hover,
+  .input-base[readonly]:hover {
+    border-color: var(--color-line);
   }
 
   .input-error {

@@ -18,7 +18,7 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
     <span
       aria-hidden="true"
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full bg-primary-tint font-bold text-primary-strong ring-1 ring-primary/15',
+        'inline-flex shrink-0 items-center justify-center rounded-full bg-primary-bright/70 font-bold text-primary ring-1 ring-primary/10',
         SIZES[size],
         className,
       )}

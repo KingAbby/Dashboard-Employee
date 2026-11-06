@@ -66,7 +66,7 @@ const jakartaToday = (): string =>
     day: '2-digit',
   }).format(new Date());
 
-/** 7 hari terakhir (melewati Sabtu/Minggu), urut dari yang paling lama. */
+/** Rentang 7 hari kalender terakhir, akhir pekan dilewati. */
 const workingDays = (): string[] => {
   const [year, month, day] = jakartaToday().split('-').map(Number);
   const todayUtc = Date.UTC(year, month - 1, day);
@@ -98,75 +98,88 @@ const writeSamplePhoto = async (
   return fileName;
 };
 
-const seedIdentity = async (): Promise<void> => {
+const seedIdentity = async (): Promise<{ id: string; isAdmin: boolean }[]> => {
   await identityDataSource.initialize();
   const employees = identityDataSource.getRepository(Employee);
+  const seeded: { id: string; isAdmin: boolean }[] = [];
 
   try {
     for (const seed of SEED_EMPLOYEES) {
-      const existing = await employees.findOne({ where: { email: seed.email } });
+      const existing = await employees.findOne({
+        where: [{ email: seed.email }, { id: seed.id }, { employeeCode: seed.employeeCode }],
+      });
+
       if (existing) {
-        logger.log(`Lewati ${seed.email} (sudah ada).`);
+        if (existing.email === seed.email) {
+          logger.log(`Lewati ${seed.email} (sudah ada).`);
+          seeded.push({ id: existing.id, isAdmin: seed.role === Role.ADMIN_HRD });
+        } else {
+          logger.warn(
+            `Lewati ${seed.email}: id/kode seed sudah dipakai ${existing.email}. Data itu tidak diubah.`,
+          );
+        }
         continue;
       }
 
-      await employees.save(
-        employees.create({
-          id: seed.id,
-          employeeCode: seed.employeeCode,
-          fullName: seed.fullName,
-          email: seed.email,
-          passwordHash: await hashPassword(seed.password),
-          role: seed.role,
-          position: seed.position,
-          department: seed.department,
-          phone: seed.phone,
-          joinDate: seed.joinDate,
-          isActive: true,
-        }),
-      );
+      await employees.insert({
+        id: seed.id,
+        employeeCode: seed.employeeCode,
+        fullName: seed.fullName,
+        email: seed.email,
+        passwordHash: await hashPassword(seed.password),
+        role: seed.role,
+        position: seed.position,
+        department: seed.department,
+        phone: seed.phone,
+        joinDate: seed.joinDate,
+        isActive: true,
+      });
       logger.log(`Karyawan dibuat: ${seed.employeeCode} ${seed.fullName}`);
+      seeded.push({ id: seed.id, isAdmin: seed.role === Role.ADMIN_HRD });
     }
   } finally {
     await identityDataSource.destroy();
   }
+
+  return seeded;
 };
 
-const seedAttendance = async (): Promise<void> => {
+const seedAttendance = async (employeeIds: string[]): Promise<void> => {
+  if (employeeIds.length === 0) {
+    logger.log('Tidak ada karyawan seed yang cocok, absensi contoh dilewati.');
+    return;
+  }
+
   await attendanceDataSource.initialize();
   const attendances = attendanceDataSource.getRepository(Attendance);
 
   try {
     const days = workingDays();
-    const employees = SEED_EMPLOYEES.filter((employee) => employee.role === Role.EMPLOYEE);
 
-    for (const [employeeIndex, employee] of employees.entries()) {
+    for (const [employeeIndex, employeeId] of employeeIds.entries()) {
       for (const [dayIndex, attendanceDate] of days.entries()) {
         const existing = await attendances.findOne({
-          where: { employeeId: employee.id, attendanceDate },
+          where: { employeeId, attendanceDate },
         });
         if (existing) continue;
 
-        // Pola tetap: sebagian besar tepat waktu, sisanya terlambat.
         const late = (dayIndex + employeeIndex) % 4 === 1;
         const status = late ? AttendanceStatus.LATE : AttendanceStatus.ON_TIME;
 
         const [year, month, day] = attendanceDate.split('-').map(Number);
         const minuteOffset = (employeeIndex * 7 + dayIndex * 11) % 35;
-        const checkInHourUtc = late ? 2 : 1; // 09:xx / 08:xx WIB
+        const checkInHourUtc = late ? 2 : 1;
         const checkInMinuteUtc = (late ? 10 : 0) + minuteOffset;
 
         const checkInAt = new Date(
           Date.UTC(year, month - 1, day, checkInHourUtc, checkInMinuteUtc, 0),
         );
-        const checkOutAt = new Date(
-          Date.UTC(year, month - 1, day, 9, 5 + minuteOffset, 0), // 16:xx WIB
-        );
+        const checkOutAt = new Date(Date.UTC(year, month - 1, day, 9, 5 + minuteOffset, 0));
 
         await attendances.save(
           attendances.create({
             id: crypto.randomUUID(),
-            employeeId: employee.id,
+            employeeId,
             attendanceDate,
             checkInAt,
             checkInPhoto: await writeSamplePhoto(attendanceDate, status),
@@ -186,8 +199,10 @@ const seedAttendance = async (): Promise<void> => {
 };
 
 const run = async (): Promise<void> => {
-  await seedIdentity();
-  await seedAttendance();
+  const seeded = await seedIdentity();
+  await seedAttendance(
+    seeded.filter((employee) => !employee.isAdmin).map((employee) => employee.id),
+  );
   logger.log('Seed selesai.');
 };
 

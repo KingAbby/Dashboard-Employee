@@ -70,8 +70,6 @@ const normalizePayload = (raw: Record<string, unknown>): RpcErrorPayload | null 
     };
   }
 
-  // RpcException yang sudah menyeberang TCP terlihat seperti
-  // { error: { statusCode, message }, message }.
   const nested = raw['error'];
   if (isObject(nested) && typeof nested['statusCode'] === 'number') {
     return normalizePayload(nested);
@@ -81,8 +79,6 @@ const normalizePayload = (raw: Record<string, unknown>): RpcErrorPayload | null 
 };
 
 export const toRpcErrorPayload = (exception: unknown): RpcErrorPayload => {
-  // Error dari transport kehilangan prototype-nya, jadi bentuk payload
-  // dikenali dari isinya, bukan dari instanceof.
   if (isObject(exception) && !(exception instanceof Error)) {
     const normalized = normalizePayload(exception);
     if (normalized) return normalized;
@@ -115,8 +111,9 @@ export const toRpcErrorPayload = (exception: unknown): RpcErrorPayload => {
       message = response['message'] as string | string[];
     }
 
-    // Pesan bawaan class-validator berbahasa Inggris; ganti dengan pesan kita.
-    if (statusCode === HttpStatus.BAD_REQUEST && Array.isArray(message)) {
+    if (statusCode === HttpStatus.PAYLOAD_TOO_LARGE) {
+      message = ERROR_MESSAGES.ATTENDANCE_PHOTO_TOO_LARGE;
+    } else if (statusCode === HttpStatus.BAD_REQUEST && Array.isArray(message)) {
       message = message.length > 0 ? message : ERROR_MESSAGES.VALIDATION_FAILED;
     } else if (statusCode === HttpStatus.BAD_REQUEST && message === 'Bad Request Exception') {
       message = ERROR_MESSAGES.VALIDATION_FAILED;

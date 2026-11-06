@@ -15,10 +15,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white border border-primary hover:bg-primary-strong hover:border-primary-strong shadow-[0_1px_2px_rgba(217,130,74,0.25)]',
+    'bg-primary text-white border border-primary hover:bg-primary-strong hover:border-primary-strong shadow-[0_1px_2px_rgba(10,43,76,0.18)]',
   secondary: 'bg-surface text-ink border border-line hover:bg-bg hover:border-line-strong',
-  danger: 'bg-danger text-white border border-danger hover:bg-[#ad262b] hover:border-[#ad262b]',
-  ghost: 'bg-transparent text-muted border border-transparent hover:bg-surface-muted hover:text-ink',
+  danger: 'bg-danger text-white border border-danger hover:bg-[#b32a1f] hover:border-[#b32a1f]',
+  ghost:
+    'bg-transparent text-muted border border-transparent hover:bg-surface-muted hover:text-ink',
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -28,7 +29,15 @@ const SIZES: Record<ButtonSize, string> = {
 
 const Spinner = () => (
   <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+    <circle
+      cx="12"
+      cy="12"
+      r="9"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      opacity="0.25"
+    />
     <path
       d="M21 12a9 9 0 0 0-9-9"
       fill="none"

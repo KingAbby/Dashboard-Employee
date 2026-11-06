@@ -3,5 +3,4 @@ import type { Role } from '@app/common';
 
 export const ROLES_KEY = 'roles';
 
-/** Membatasi endpoint ke role tertentu; dibaca RolesGuard. */
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
