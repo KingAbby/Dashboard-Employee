@@ -19,7 +19,7 @@ flowchart LR
   GW -.-> FS[("backend/uploads/attendance")]
 ```
 
-- Frontend hanya bicara dengan gateway; service TCP tidak diekspos ke luar.
+- Frontend hanya bicara dengan gateway, service TCP tidak diekspos ke luar.
 - Satu instance MySQL, dua database terpisah, tanpa foreign key lintas database.
 
 ## Database
@@ -95,7 +95,7 @@ Setelah `npm run dev`:
 | identity (TCP)   | 127.0.0.1:4001                   |
 | attendance (TCP) | 127.0.0.1:4002                   |
 
-MySQL disimpan di volume Docker `dashboard-karyawan_mysql_data`. `MYSQL_ROOT_PASSWORD` hanya dipakai saat volume masih kosong; untuk mengganti `DB_PASSWORD` pada volume yang sudah ada, jalankan `npm run db:reset` (hapus volume lalu buat ulang).
+MySQL disimpan di volume Docker `dashboard-karyawan_mysql_data`. `MYSQL_ROOT_PASSWORD` hanya dipakai saat volume masih kosong, untuk mengganti `DB_PASSWORD` pada volume yang sudah ada jalankan `npm run db:reset` (hapus volume lalu buat ulang).
 
 ## Akun seed (hanya untuk lokal)
 
@@ -124,7 +124,7 @@ Prefix `/api`. Semua endpoint kecuali login butuh header `Authorization: Bearer 
 | GET    | `/employees/next-code` | ADMIN_HRD | Pratinjau kode karyawan berikutnya             |
 | GET    | `/employees/:id`       | ADMIN_HRD | Detail                                         |
 | POST   | `/employees`           | ADMIN_HRD | Tambah karyawan (admin mengisi password awal)  |
-| PATCH  | `/employees/:id`       | ADMIN_HRD | Ubah data; password opsional                   |
+| PATCH  | `/employees/:id`       | ADMIN_HRD | Ubah data, password opsional                   |
 | DELETE | `/employees/:id`       | ADMIN_HRD | Nonaktifkan (soft delete)                      |
 
 ### Absensi
@@ -134,8 +134,8 @@ Prefix `/api`. Semua endpoint kecuali login butuh header `Authorization: Bearer 
 | GET    | `/attendances/today`                  | EMPLOYEE               | Status absen hari ini milik sendiri                 |
 | POST   | `/attendances/check-in`               | EMPLOYEE               | `multipart/form-data`: `photo` wajib, `note` opsional |
 | POST   | `/attendances/check-out`              | EMPLOYEE               | Sama seperti check-in, setelah `WORK_END_TIME`      |
-| GET    | `/attendances/me`                     | EMPLOYEE               | Riwayat sendiri; filter `dateFrom`/`dateTo`         |
-| GET    | `/attendances`                        | ADMIN_HRD              | Semua absensi + nama karyawan; filter tanggal/karyawan/status |
+| GET    | `/attendances/me`                     | EMPLOYEE               | Riwayat sendiri, filter `dateFrom`/`dateTo`         |
+| GET    | `/attendances`                        | ADMIN_HRD              | Semua absensi + nama karyawan, filter tanggal/karyawan/status |
 | GET    | `/attendances/summary`                | ADMIN_HRD              | Ringkasan hari ini                                  |
 | GET    | `/attendances/:id/photo?type=in\|out` | pemilik atau ADMIN_HRD | Streaming foto, tidak publik                        |
 
@@ -143,10 +143,10 @@ Pagination: `page` (mulai 1), `limit` (default 10, maksimal 100).
 
 ## Catatan / Batasan
 
-- Komunikasi antar-service memakai TCP tanpa message broker (cukup untuk tes; produksi sebaiknya Redis/NATS/RabbitMQ).
+- Komunikasi antar-service memakai TCP tanpa message broker.
 - Token JWT disimpan di `localStorage`, tanpa refresh token.
-- Hapus karyawan = soft delete (`is_active = 0`); riwayat absensi tetap tersimpan.
-- Foto absensi disimpan di filesystem `backend/uploads/attendance/YYYY/MM/` (git-ignored); database hanya menyimpan nama file. Backup harus mencakup dump database **dan** folder `uploads/`.
+- Hapus karyawan = soft delete (`is_active = 0`), riwayat absensi tetap tersimpan.
+- Foto absensi disimpan di filesystem `backend/uploads/attendance/YYYY/MM/`, database hanya menyimpan nama file. Backup harus mencakup dump database **dan** folder `uploads/`.
 
 ## Menjalankan test
 
